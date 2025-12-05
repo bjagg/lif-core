@@ -1,7 +1,7 @@
 export default {
   rules: {
     "scope-empty": [2, "never"],
-    "scope-case": [2, "always", "upper-case"],
+    "scope-case": [0],
     "scope-min-length": [2, "always", 4],
     "subject-empty": [2, "never"],
     "subject-min-length": [2, "always", 4],
@@ -10,7 +10,7 @@ export default {
   },
   parserPreset: {
     parserOpts: {
-      headerPattern: /^((LIF-|LIFCORE-)\d+(?:, (LIF-|LIFCORE-)\d+)*|NOJIRA):\s(.*)$/,
+      headerPattern: /^((Issue #)\d+(?:, (Issue #)\d+)*):\s(.*)$/,
       headerCorrespondence: ["scope", "subject"],
     },
   },
