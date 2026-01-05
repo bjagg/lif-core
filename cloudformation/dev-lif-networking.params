@@ -49,11 +49,11 @@
   },
   {
     "ParameterKey": "PublicHostedZoneId",
-    "ParameterValue": "Z07340063BIENXXID41T8"
+    "ParameterValue": "Z0699848FZR38JOSEVAG"
   },
   {
     "ParameterKey": "PublicHostedZoneName",
-    "ParameterValue": "lif.unicon.net"
+    "ParameterValue": "dev.lif.unicon.net"
   },
   {
     "ParameterKey": "SecurityZoneId",
