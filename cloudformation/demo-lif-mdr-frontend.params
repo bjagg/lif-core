@@ -4,15 +4,23 @@
     "ParameterValue": "demo"
   },
   {
-    "ParameterKey": "HostedZoneName",
-    "ParameterValue": "demo.lif.unicon.net"
+    "ParameterKey": "PublicHostedZoneName",
+    "ParameterValue": "/demo/PublicHostedZoneName"
   },
   {
-    "ParameterKey": "HostedZoneId",
-    "ParameterValue": "Z01404232VS3BQYEC5TV1"
+    "ParameterKey": "PublicHostedZoneId",
+    "ParameterValue": "/demo/PublicHostedZoneId"
   },
   {
     "ParameterKey": "ServiceName",
     "ParameterValue": "mdr"
+  },
+  {
+    "ParameterKey": "TemplateS3Bucket",
+    "ParameterValue": "clir-cf-templates"
+  },
+  {
+    "ParameterKey": "TemplateS3Key",
+    "ParameterValue": "demo-lif/s3-hosted.yml"
   }
 ]
