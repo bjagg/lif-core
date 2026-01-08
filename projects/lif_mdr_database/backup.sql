@@ -18218,7 +18218,7 @@ COPY public."ValueSets" ("Id", "Name", "Description", "UseConsiderations", "Data
 -- Name: Attributes_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."Attributes_Id_seq"', 1954, true);
+SELECT pg_catalog.setval('public."Attributes_Id_seq"', 1955, true);
 
 
 --
@@ -18239,14 +18239,14 @@ SELECT pg_catalog.setval('public."DataModelConstraints_Id_seq"', 1, false);
 -- Name: DataModels_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."DataModels_Id_seq"', 26, true);
+SELECT pg_catalog.setval('public."DataModels_Id_seq"', 27, true);
 
 
 --
 -- Name: Entities_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."Entities_Id_seq"', 378, true);
+SELECT pg_catalog.setval('public."Entities_Id_seq"', 379, true);
 
 
 --
@@ -18260,14 +18260,14 @@ SELECT pg_catalog.setval('public."EntityAssociation_Id_seq"', 185, true);
 -- Name: EntityAttributeAssociation_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."EntityAttributeAssociation_Id_seq"', 2224, true);
+SELECT pg_catalog.setval('public."EntityAttributeAssociation_Id_seq"', 2225, true);
 
 
 --
 -- Name: ExtInclusionsFromBaseDM_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."ExtInclusionsFromBaseDM_Id_seq"', 378, true);
+SELECT pg_catalog.setval('public."ExtInclusionsFromBaseDM_Id_seq"', 379, true);
 
 
 --
@@ -18281,21 +18281,21 @@ SELECT pg_catalog.setval('public."ExtMappedValueSet_Id_seq"', 1, false);
 -- Name: TransformationAttributes_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."TransformationAttributes_Id_seq"', 2727, true);
+SELECT pg_catalog.setval('public."TransformationAttributes_Id_seq"', 2743, true);
 
 
 --
 -- Name: TransformationsGroup_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."TransformationsGroup_Id_seq"', 26, true);
+SELECT pg_catalog.setval('public."TransformationsGroup_Id_seq"', 27, true);
 
 
 --
 -- Name: Transformations_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."Transformations_Id_seq"', 1370, true);
+SELECT pg_catalog.setval('public."Transformations_Id_seq"', 1373, true);
 
 
 --
@@ -18316,7 +18316,7 @@ SELECT pg_catalog.setval('public."ValueSetValues_Id_seq"', 5346, true);
 -- Name: ValueSets_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public."ValueSets_Id_seq"', 364, true);
+SELECT pg_catalog.setval('public."ValueSets_Id_seq"', 365, true);
 
 
 --
