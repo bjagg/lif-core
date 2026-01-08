@@ -5,7 +5,7 @@
   },
   {
     "ParameterKey": "DomainNames",
-    "ParameterValue": "advisor-api.lif.unicon.net"
+    "ParameterValue": "advisor-api.dev.lif.unicon.net"
   },
   {
     "ParameterKey": "EnvironmentName",

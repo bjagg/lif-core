@@ -43,7 +43,7 @@ STACKS['dev-lif-query-planner-org3']='service'
 STACKS['dev-lif-graphql-org3']='service'
 STACKS['dev-lif-mongodb-seed-org3']='scheduled-task'
 
-STACKS['dev-lif-mdr-frontend']='s3-hosted'
+STACKS['dev-lif-mdr-frontend']='s3-hosted-stackset'
 STACKS['dev-lif-mdr-api']='service'
 
 # Dagster OSE

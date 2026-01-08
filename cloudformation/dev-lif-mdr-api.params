@@ -9,7 +9,7 @@
   },
   {
     "ParameterKey": "DomainNames",
-    "ParameterValue": "mdr-api.lif.unicon.net"
+    "ParameterValue": "mdr-api.dev.lif.unicon.net"
   },
   {
     "ParameterKey": "EnvironmentName",
