@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Unique indexes added for ValueSets and ValueSetValues
 - Pull request template with comprehensive contribution guidelines
 - MIGRATION.md for tracking breaking changes and upgrade paths
 - CHANGELOG.md for tracking all notable changes
