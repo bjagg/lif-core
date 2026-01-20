@@ -1,9 +1,11 @@
 import json
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
+import psycopg2
 import pytest
-import testcontainers.postgres
+import testing.postgresql
 from deepdiff import DeepDiff
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -17,39 +19,52 @@ HEADER_MDR_API_KEY_GRAPHQL = {"X-API-Key": "changeme1"}
 
 
 @pytest.fixture(scope="session")
-def postgres_container():
-    """Start a PostgreSQL container for testing."""
+def postgres_server():
+    """Start a PostgreSQL server for testing (no Docker required).
 
-    # Get the absolute path to the SQL file that is used to
-    # initialize the database when docker compose starts up
-    backup_sql_path = str(Path(__file__).parent.parent.parent.parent.parent / "projects/lif_mdr_database/backup.sql")
+    Requires PostgreSQL to be installed locally (e.g., `brew install postgresql` on macOS).
+    """
 
-    # Create a postgreSQL container with volume mapping for the init SQL script
-    postgres = testcontainers.postgres.PostgresContainer(
-        "postgres:17", username="postgres", password="postgres", dbname="LIF"
-    ).with_volume_mapping(backup_sql_path, "/docker-entrypoint-initdb.d/01-backup.sql", mode="ro")
+    # Get the absolute path to the SQL file that is used to initialize the database
+    backup_sql_path = Path(__file__).parent.parent.parent.parent.parent / "projects/lif_mdr_database/backup.sql"
 
     try:
-        with postgres as pg:
-            # Set environment variables for MDR
-            os.environ["POSTGRESQL_USER"] = pg.username
-            os.environ["POSTGRESQL_PASSWORD"] = pg.password
-            os.environ["POSTGRESQL_HOST"] = pg.get_container_host_ip()
-            os.environ["POSTGRESQL_PORT"] = str(pg.get_exposed_port(5432))
-            os.environ["POSTGRESQL_DB"] = pg.dbname
+        postgresql = testing.postgresql.Postgresql()
+    except RuntimeError as e:
+        pytest.skip(f"PostgreSQL not available locally: {e}")
 
-            yield pg
-    except Exception:
-        # Print container logs if startup fails
-        logs = postgres.get_wrapped_container().logs().decode("utf-8")
-        print(f"Container logs:\n{logs}")
-        raise
+    with postgresql:
+        # Initialize database with backup.sql
+        parsed = urlparse(postgresql.url())
+        conn = psycopg2.connect(
+            host=parsed.hostname,
+            port=parsed.port,
+            user=parsed.username,
+            password=parsed.password,
+            database=parsed.path.lstrip("/"),
+        )
+        conn.autocommit = True
+        with conn.cursor() as cur:
+            cur.execute(backup_sql_path.read_text())
+        conn.close()
+
+        # Set environment variables for MDR
+        os.environ["POSTGRESQL_USER"] = parsed.username or "postgres"
+        os.environ["POSTGRESQL_PASSWORD"] = parsed.password or ""
+        os.environ["POSTGRESQL_HOST"] = parsed.hostname or "localhost"
+        os.environ["POSTGRESQL_PORT"] = str(parsed.port)
+        os.environ["POSTGRESQL_DB"] = parsed.path.lstrip("/")
+
+        yield postgresql
 
 
 @pytest.fixture(scope="function")
-async def test_db_session(postgres_container):
+async def test_db_session(postgres_server):
     """Create a new database session for each test."""
-    DATABASE_URL = f"postgresql+asyncpg://{postgres_container.username}:{postgres_container.password}@{postgres_container.get_container_host_ip()}:{str(postgres_container.get_exposed_port(5432))}/{postgres_container.dbname}"
+    # Convert psycopg2 URL to asyncpg URL format
+    parsed = urlparse(postgres_server.url())
+    DATABASE_URL = f"postgresql+asyncpg://{parsed.username}:{parsed.password or ''}@{parsed.hostname}:{parsed.port}{parsed.path}"
+
     engine = create_async_engine(DATABASE_URL, echo=True)
     async_session_maker = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
 
