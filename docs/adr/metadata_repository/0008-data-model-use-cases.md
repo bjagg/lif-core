@@ -63,9 +63,23 @@ In order to maintain portable data:
 
 #### Transformations / Mappings
 
-One of the primary benefits of using MDR is the ability to _map_ or _transform_ a block of JSON from one form into another. Any _Data Model_ in the LIF system can be used as the source or target for this transformation.
+One of the primary benefits of using **MDR** is the ability to _map_ or _transform_ a block of JSON from one form into another. Any _Data Model_ in the LIF system can be used as the source or target for this transformation.
 
 Transformations can only be made between _Attributes_.
+
+Each _Attribute_ will be persisted with an ID path (`entityIdPath`). This path is meant to be absolute in the system, and easily convertible to a portable format.
+
+The ID path is required and has the format: `data_model_id1:entity_id2,data_model_id1:entity_id3,...,data_model_id5:attribute_id3`
+
+It would be stored and transferred via the API as numeric IDs to allow cleaner parsing of data. On export, the _Entity_ / _Attribute_ IDs would be converted to their `UniqueNames`.
+
+The path must start with a active (non-deleted) _Entity_, and only contain active _Entities_, up until the last element, which is an active _Attribute_.
+
+The first _Data Model_ ID in the path must match the 'anchor' _Data Model_ ID, which is the **Source** or **Target** _Data Model_ of the transformation.
+
+The rest of the _Data Model_ IDs must match existing, active _Data Models_.
+
+_Entities_ and _Attributes_ must appropriately 'chain' together via the association tables based on the _Data Model_ types involved. For _Org LIF_ and _Partner LIF_, this includes checks that each item in the path is in the `Inclusions` table.
 
 ### Base LIF
 
