@@ -34,25 +34,60 @@ test/
 
 Each module typically contains:
 - `test_core.py` — tests for the corresponding `core.py`
-- `__init__.py` — marks the directory as a Python module (optional with modern Python)
+- `__init__.py` — marks the directory as a Python package (required for pytest-asyncio to work correctly)
 
-## Setup
+## Prerequisites
 
-For now, export `LIF_ADAPTER__LIF_TO_LIF__GRAPHQL_API_URL` with an arbitrary value before running the tests, such as:
+### Required
+
+- **Python 3.13+** with dependencies installed via `uv sync`
+
+### Optional (for integration tests)
+
+- **PostgreSQL** - Required for MDR integration tests (`test/bases/lif/mdr_restapi/`)
+  ```bash
+  # macOS
+  brew install postgresql
+  ```
+  If PostgreSQL is not installed, these tests will be skipped automatically.
+
+### Environment Variables
+
+Export `LIF_ADAPTER__LIF_TO_LIF__GRAPHQL_API_URL` before running tests:
 
 ```bash
-export LIF_ADAPTER__LIF_TO_LIF__GRAPHQL_API_URL="asdf"
+export LIF_ADAPTER__LIF_TO_LIF__GRAPHQL_API_URL="http://localhost:8000"
 ```
 
 ## Running Tests
 
-You can run all tests using `pytest` or another test runner of your choice:
+Run all tests from the repository root:
 
-    pytest test/
+```bash
+uv run pytest
+```
 
-To run a specific module:
+Run a specific test file:
 
-    pytest test/components/lif/query_cache_service/test_core.py
+```bash
+uv run pytest test/components/lif/query_cache_service/test_core.py
+```
+
+Run a specific test:
+
+```bash
+uv run pytest test/components/lif/query_cache_service/test_core.py::test_function_name -v
+```
+
+Run with verbose output:
+
+```bash
+uv run pytest -v
+```
+
+## Async Tests
+
+Tests use `pytest-asyncio` with `asyncio_mode = auto` (configured in `pyproject.toml`). Async test functions are automatically detected and run - no `@pytest.mark.asyncio` decorator needed.
 
 ## Guidelines
 

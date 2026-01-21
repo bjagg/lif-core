@@ -1,9 +1,9 @@
 import json
 import os
+import subprocess
 from pathlib import Path
 from urllib.parse import urlparse
 
-import psycopg2
 import pytest
 import testing.postgresql
 from deepdiff import DeepDiff
@@ -34,19 +34,27 @@ def postgres_server():
         pytest.skip(f"PostgreSQL not available locally: {e}")
 
     with postgresql:
-        # Initialize database with backup.sql
+        # Initialize database with backup.sql using psql command
+        # (psycopg2 can't handle COPY ... FROM stdin with inline data)
         parsed = urlparse(postgresql.url())
-        conn = psycopg2.connect(
-            host=parsed.hostname,
-            port=parsed.port,
-            user=parsed.username,
-            password=parsed.password,
-            database=parsed.path.lstrip("/"),
+        env = os.environ.copy()
+        env["PGPASSWORD"] = parsed.password or ""
+
+        result = subprocess.run(
+            [
+                "psql",
+                "-h", parsed.hostname,
+                "-p", str(parsed.port),
+                "-U", parsed.username,
+                "-d", parsed.path.lstrip("/"),
+                "-f", str(backup_sql_path),
+            ],
+            env=env,
+            capture_output=True,
+            text=True,
         )
-        conn.autocommit = True
-        with conn.cursor() as cur:
-            cur.execute(backup_sql_path.read_text())
-        conn.close()
+        if result.returncode != 0:
+            pytest.fail(f"Failed to load backup.sql: {result.stderr}")
 
         # Set environment variables for MDR
         os.environ["POSTGRESQL_USER"] = parsed.username or "postgres"
