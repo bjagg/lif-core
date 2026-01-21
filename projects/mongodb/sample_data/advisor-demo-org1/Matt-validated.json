@@ -1678,7 +1678,7 @@
           "identifier": "contact-org1-001"
         }
       ],
-      "identifier": [
+      "Identifier": [
         {
           "informationSourceId": "Org1",
           "identifier": "sha256$81fb9410e68f70a95e9a614e8fcefba8a067fa406a1405610093713d4009844a",
@@ -1984,7 +1984,7 @@
   "course": [
     {
       "informationSourceId": "Org1",
-      "identifier": [
+      "Identifier": [
         {
           "identifier": "CS651",
           "identifierType": "Course Code",
@@ -2038,7 +2038,7 @@
         }
       ],
       "imageUrl": "https://assets.stateu.edu/99da0cfd314920b5cf8cb6c8727e7675",
-      "identifier": [
+      "Identifier": [
         {
           "identifier": "833333326",
           "identifierType": "Federal employer identification number",
@@ -2111,7 +2111,7 @@
         }
       ],
       "imageUrl": "https://assets.stateu.edu/99da0cfd314920b5cf8cb6c8727e7675",
-      "identifier": [
+      "Identifier": [
         {
           "identifier": "833333326",
           "identifierType": "Federal employer identification number",
@@ -2772,7 +2772,7 @@
       "requirements": {
         "criteria": [
           {
-            "narrative": "## Credential Detail\nRecipients of StateU's Network and Cyber Defense Foundations Certificate have demonstrated competence in the following areas via rigorous assessment activities completed through State University:\n\n### Introduction to IT\n- The learner explains different computer hardware and networking technologies and their developments. \n- The learner describes fundamental data management functions in databases.   \n- The learner identifies components of software and its relation to operating systems. \n- The learner identifies computer hardware components. \n- The learner evaluates ethical concerns in information technology. \n- The learner describes the structure, function, and security associated with networks.  \n- The learner describes the basics of programming languages in software development.   \n- The learner describes the role of the IT department in IT infrastructure management, disaster recovery, and business continuity processes.   \n\n### Fundamentals of Information Security\t\n- The learner identifies security principles, policies, practices, and methods for asset protection and cyber defense.\n- The learner identifies security requirements based on principles of confidentiality, integrity, and availability.\n- The learner identifies cybersecurity guidelines in privacy and compliance. \n\n### Web Development Foundations\n- The learner creates the structure of basic web documents using HTML and XML.  \n- The learner implements web page formatting and interface aesthetics using CSS  \n- The learner resolves software problems in web development environments with debugging tools.\n\n### Network and Security "“ Foundations\n- The learner identifies basic network systems and concepts related to networking technologies.  \n- The learner applies network security concepts for business continuity, data access, and confidentiality.   \n- The learner identifies solutions for compliance with security guidance. \n\n### Digital Forensics in Cybersecurity\n- The learner identifies laws, rules, standards, policies, and best practices related to digital forensics.\n- The learner conducts analysis on gathered evidence with forensic tools in alignment with investigation processes. \n- The learner collects forensic evidence from deleted files and artifacts.\n- The learner identifies steganography techniques for data transmission.\n\n### Scripting and Programming Foundations\n- The learner identifies scripts for computer program requirements.\n- The learner uses fundamental programming elements as part of common computer programming tasks.\n- The learner explains the logic and outcome of simple algorithms.\n\n## Competency Demonstration Highlights \nRecipients of this credential complete the following tasks and deliverables as part of their assessment activities:\n- Develops investigative plans  based on digital forensic tools, best practices, standards, and organizational policies.\n- Conducts a forensic investigation with industry-standard tools.\n\n## StateU Accreditation\nStateU is regionally accredited by the Northwest Commission on Colleges and Universities. The StateU Teachers College is granted accreditation at the initial-licensure level from the Council for the Accreditation of Educator Preparation (CAEP). StateU nursing degree programs are accredited by the Commission for Collegiate Nursing Education (CCNE). The Health Informatics program is accredited by the Commission of Accreditation for Health Informatics and Information Management Education (CAHIIM). The StateU Business College is accredited by the Accreditation Council for Business Schools and Programs (ACBSP).",
+            "narrative": "## Credential Detail\nRecipients of StateU's Network and Cyber Defense Foundations Certificate have demonstrated competence in the following areas via rigorous assessment activities completed through State University:\n\n### Introduction to IT\n- The learner explains different computer hardware and networking technologies and their developments. \n- The learner describes fundamental data management functions in databases.   \n- The learner identifies components of software and its relation to operating systems. \n- The learner identifies computer hardware components. \n- The learner evaluates ethical concerns in information technology. \n- The learner describes the structure, function, and security associated with networks.  \n- The learner describes the basics of programming languages in software development.   \n- The learner describes the role of the IT department in IT infrastructure management, disaster recovery, and business continuity processes.   \n\n### Fundamentals of Information Security\t\n- The learner identifies security principles, policies, practices, and methods for asset protection and cyber defense.\n- The learner identifies security requirements based on principles of confidentiality, integrity, and availability.\n- The learner identifies cybersecurity guidelines in privacy and compliance. \n\n### Web Development Foundations\n- The learner creates the structure of basic web documents using HTML and XML.  \n- The learner implements web page formatting and interface aesthetics using CSS  \n- The learner resolves software problems in web development environments with debugging tools.\n\n### Network and Security - Foundations\n- The learner identifies basic network systems and concepts related to networking technologies.  \n- The learner applies network security concepts for business continuity, data access, and confidentiality.   \n- The learner identifies solutions for compliance with security guidance. \n\n### Digital Forensics in Cybersecurity\n- The learner identifies laws, rules, standards, policies, and best practices related to digital forensics.\n- The learner conducts analysis on gathered evidence with forensic tools in alignment with investigation processes. \n- The learner collects forensic evidence from deleted files and artifacts.\n- The learner identifies steganography techniques for data transmission.\n\n### Scripting and Programming Foundations\n- The learner identifies scripts for computer program requirements.\n- The learner uses fundamental programming elements as part of common computer programming tasks.\n- The learner explains the logic and outcome of simple algorithms.\n\n## Competency Demonstration Highlights \nRecipients of this credential complete the following tasks and deliverables as part of their assessment activities:\n- Develops investigative plans  based on digital forensic tools, best practices, standards, and organizational policies.\n- Conducts a forensic investigation with industry-standard tools.\n\n## StateU Accreditation\nStateU is regionally accredited by the Northwest Commission on Colleges and Universities. The StateU Teachers College is granted accreditation at the initial-licensure level from the Council for the Accreditation of Educator Preparation (CAEP). StateU nursing degree programs are accredited by the Commission for Collegiate Nursing Education (CCNE). The Health Informatics program is accredited by the Commission of Accreditation for Health Informatics and Information Management Education (CAHIIM). The StateU Business College is accredited by the Accreditation Council for Business Schools and Programs (ACBSP).",
             "informationSourceId": "Org1"
           }
         ],

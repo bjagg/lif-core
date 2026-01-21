@@ -1690,7 +1690,7 @@
           "identifier": "contact-single-org-001"
         }
       ],
-      "identifier": [
+      "Identifier": [
         {
           "identifier": "100006",
           "identifierType": "SCHOOL_ASSIGNED_NUMBER",
@@ -2238,7 +2238,7 @@
             "identifier": "organization-state-university-single-org-001"
           },
           "refCourse": {
-            "identifier": [
+            "Identifier": [
               {
                 "identifier": "CS651",
                 "identifierType": "Course Code",
@@ -2284,7 +2284,7 @@
             "identifier": "organization-state-university-single-org-001"
           },
           "refCourse": {
-            "identifier": [
+            "Identifier": [
               {
                 "identifier": "CS651",
                 "identifierType": "Course Code",
@@ -2330,7 +2330,7 @@
             "identifier": "organization-state-university-single-org-001"
           },
           "refCourse": {
-            "identifier": [
+            "Identifier": [
               {
                 "identifier": "CS651",
                 "identifierType": "Course Code",
@@ -2376,7 +2376,7 @@
             "identifier": "organization-state-university-single-org-001"
           },
           "refCourse": {
-            "identifier": [
+            "Identifier": [
               {
                 "identifier": "CS651",
                 "identifierType": "Course Code",
@@ -2422,7 +2422,7 @@
             "identifier": "organization-state-university-single-org-001"
           },
           "refCourse": {
-            "identifier": [
+            "Identifier": [
               {
                 "identifier": "CS651",
                 "identifierType": "Course Code",
@@ -2468,7 +2468,7 @@
             "identifier": "organization-state-university-single-org-001"
           },
           "refCourse": {
-            "identifier": [
+            "Identifier": [
               {
                 "identifier": "CS651",
                 "identifierType": "Course Code",
@@ -2514,7 +2514,7 @@
             "identifier": "organization-state-university-single-org-001"
           },
           "refCourse": {
-            "identifier": [
+            "Identifier": [
               {
                 "identifier": "CS651",
                 "identifierType": "Course Code",
@@ -2560,7 +2560,7 @@
             "identifier": "organization-state-university-single-org-001"
           },
           "refCourse": {
-            "identifier": [
+            "Identifier": [
               {
                 "identifier": "CS651",
                 "identifierType": "Course Code",
@@ -2606,7 +2606,7 @@
             "identifier": "organization-state-university-single-org-001"
           },
           "refCourse": {
-            "identifier": [
+            "Identifier": [
               {
                 "identifier": "CS651",
                 "identifierType": "Course Code",
@@ -2652,7 +2652,7 @@
             "identifier": "organization-state-university-single-org-001"
           },
           "refCourse": {
-            "identifier": [
+            "Identifier": [
               {
                 "identifier": "CS651",
                 "identifierType": "Course Code",
@@ -2698,7 +2698,7 @@
             "identifier": "organization-state-university-single-org-001"
           },
           "refCourse": {
-            "identifier": [
+            "Identifier": [
               {
                 "identifier": "CS651",
                 "identifierType": "Course Code",
@@ -2744,7 +2744,7 @@
             "identifier": "organization-state-university-single-org-001"
           },
           "refCourse": {
-            "identifier": [
+            "Identifier": [
               {
                 "identifier": "CS651",
                 "identifierType": "Course Code",
@@ -2790,7 +2790,7 @@
             "identifier": "organization-state-university-single-org-001"
           },
           "refCourse": {
-            "identifier": [
+            "Identifier": [
               {
                 "identifier": "CS651",
                 "identifierType": "Course Code",
@@ -2836,7 +2836,7 @@
             "identifier": "organization-state-university-single-org-001"
           },
           "refCourse": {
-            "identifier": [
+            "Identifier": [
               {
                 "identifier": "CS651",
                 "identifierType": "Course Code",
@@ -2882,7 +2882,7 @@
             "identifier": "organization-state-university-single-org-001"
           },
           "refCourse": {
-            "identifier": [
+            "Identifier": [
               {
                 "identifier": "CS651",
                 "identifierType": "Course Code",
@@ -2928,7 +2928,7 @@
             "identifier": "organization-state-university-single-org-001"
           },
           "refCourse": {
-            "identifier": [
+            "Identifier": [
               {
                 "identifier": "CS651",
                 "identifierType": "Course Code",
@@ -2974,7 +2974,7 @@
             "identifier": "organization-state-university-single-org-001"
           },
           "refCourse": {
-            "identifier": [
+            "Identifier": [
               {
                 "identifier": "CS651",
                 "identifierType": "Course Code",
@@ -3020,7 +3020,7 @@
             "identifier": "organization-state-university-single-org-001"
           },
           "refCourse": {
-            "identifier": [
+            "Identifier": [
               {
                 "identifier": "CS651",
                 "identifierType": "Course Code",
@@ -3708,7 +3708,7 @@
   ],
   "course": [
     {
-      "identifier": [
+      "Identifier": [
         {
           "identifier": "CS651",
           "identifierType": "Course Code",
@@ -3762,7 +3762,7 @@
         }
       ],
       "imageUrl": "https://assets.stateu.edu/99da0cfd314920b5cf8cb6c8727e7675",
-      "identifier": [
+      "Identifier": [
         {
           "identifier": "833333326",
           "identifierType": "Federal employer identification number",

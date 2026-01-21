@@ -596,7 +596,7 @@
           "identifier": "contact-org1-001"
         }
       ],
-      "identifier": [
+      "Identifier": [
         {
           "informationSourceId": "Org1",
           "identifier": "100004",
@@ -732,7 +732,7 @@
   "course": [
     {
       "informationSourceId": "Org1",
-      "identifier": [
+      "Identifier": [
         {
           "identifier": "CS651",
           "identifierType": "Course Code",
@@ -786,7 +786,7 @@
         }
       ],
       "imageUrl": "https://assets.stateu.edu/99da0cfd314920b5cf8cb6c8727e7675",
-      "identifier": [
+      "Identifier": [
         {
           "identifier": "833333326",
           "identifierType": "Federal employer identification number",

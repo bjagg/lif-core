@@ -1163,7 +1163,7 @@
           "identifier": "contact-org1-001"
         }
       ],
-      "identifier": [
+      "Identifier": [
         {
           "informationSourceId": "Org1",
           "identifier": "sha256$de620a3b2b4ba794513008a7d918a429351144c47b697f4c3976387138f33e43",
@@ -1415,7 +1415,7 @@
                 }
               ],
               "imageUrl": "https://assets.stateu.edu/99da0cfd314920b5cf8cb6c8727e7675",
-              "identifier": [
+              "Identifier": [
                 {
                   "identifier": "833333326",
                   "identifierType": "Federal employer identification number",
@@ -1518,7 +1518,7 @@
                 }
               ],
               "imageUrl": "https://assets.stateu.edu/99da0cfd314920b5cf8cb6c8727e7675",
-              "identifier": [
+              "Identifier": [
                 {
                   "identifier": "833333326",
                   "identifierType": "Federal employer identification number",
@@ -1622,7 +1622,7 @@
                 }
               ],
               "imageUrl": "https://assets.stateu.edu/99da0cfd314920b5cf8cb6c8727e7675",
-              "identifier": [
+              "Identifier": [
                 {
                   "identifier": "833333326",
                   "identifierType": "Federal employer identification number",
@@ -1724,7 +1724,7 @@
                 }
               ],
               "imageUrl": "https://assets.stateu.edu/99da0cfd314920b5cf8cb6c8727e7675",
-              "identifier": [
+              "Identifier": [
                 {
                   "identifier": "833333326",
                   "identifierType": "Federal employer identification number",
@@ -1827,7 +1827,7 @@
                 }
               ],
               "imageUrl": "https://assets.stateu.edu/99da0cfd314920b5cf8cb6c8727e7675",
-              "identifier": [
+              "Identifier": [
                 {
                   "identifier": "833333326",
                   "identifierType": "Federal employer identification number",
@@ -1930,7 +1930,7 @@
                 }
               ],
               "imageUrl": "https://assets.stateu.edu/99da0cfd314920b5cf8cb6c8727e7675",
-              "identifier": [
+              "Identifier": [
                 {
                   "identifier": "833333326",
                   "identifierType": "Federal employer identification number",
@@ -2033,7 +2033,7 @@
                 }
               ],
               "imageUrl": "https://assets.stateu.edu/99da0cfd314920b5cf8cb6c8727e7675",
-              "identifier": [
+              "Identifier": [
                 {
                   "identifier": "833333326",
                   "identifierType": "Federal employer identification number",
@@ -2267,7 +2267,7 @@
   "course": [
     {
       "informationSourceId": "Org1",
-      "identifier": [
+      "Identifier": [
         {
           "identifier": "CS651",
           "identifierType": "Course Code",
@@ -2324,7 +2324,7 @@
             }
           ],
           "imageUrl": "https://assets.stateu.edu/99da0cfd314920b5cf8cb6c8727e7675",
-          "identifier": [
+          "Identifier": [
             {
               "identifier": "833333326",
               "identifierType": "Federal employer identification number",
@@ -2743,7 +2743,7 @@
             }
           ],
           "imageUrl": "https://assets.stateu.edu/99da0cfd314920b5cf8cb6c8727e7675",
-          "identifier": [
+          "Identifier": [
             {
               "identifier": "833333326",
               "identifierType": "Federal employer identification number",
@@ -3135,7 +3135,7 @@
             }
           ],
           "imageUrl": "https://assets.stateu.edu/99da0cfd314920b5cf8cb6c8727e7675",
-          "identifier": [
+          "Identifier": [
             {
               "identifier": "833333326",
               "identifierType": "Federal employer identification number",

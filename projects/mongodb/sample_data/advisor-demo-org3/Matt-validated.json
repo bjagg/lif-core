@@ -42,7 +42,7 @@
           "identifier": "contact-org3-001"
         }
       ],
-      "identifier": [
+      "Identifier": [
         {
           "informationSourceId": "Org3",
           "identifier": "100005",
@@ -615,7 +615,7 @@
   "course": [
     {
       "informationSourceId": "Org3",
-      "identifier": [
+      "Identifier": [
         {
           "identifier": "CS651",
           "identifierType": "Course Code",
@@ -669,7 +669,7 @@
         }
       ],
       "imageUrl": "https://cdn.summitvalley.edu/assets/logo.svg",
-      "identifier": [
+      "Identifier": [
         {
           "identifier": "999112233",
           "identifierType": "Federal employer identification number",
