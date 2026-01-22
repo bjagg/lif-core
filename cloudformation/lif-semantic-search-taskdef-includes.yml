@@ -17,3 +17,7 @@ Environment:
     Value: "openapi_constrained_with_interactions.json"
   - Name: USE_OPENAPI_DATA_MODEL_FROM_FILE
     Value: "false"
+Secrets:
+  - Name: LIF_MDR_API_AUTH_TOKEN
+    ValueFrom:
+      Fn::Sub: "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${EnvironmentName}/${ServiceName}/MdrApiKey"
