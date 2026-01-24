@@ -31,6 +31,16 @@ from lif.lif_schema_config.naming import (
     to_pascal_case,
     to_schema_name,
     to_snake_case,
+    # Path constants
+    PERSON_KEY,
+    PERSON_KEY_PASCAL,
+    PERSON_DOT,
+    PERSON_DOT_PASCAL,
+    PERSON_DOT_ZERO,
+    PERSON_DOT_PASCAL_ZERO,
+    PERSON_DOT_ALL,
+    PERSON_JSON_PATH_PREFIX,
+    PERSON_DOT_LENGTH,
 )
 from lif.lif_schema_config.openapi import (
     DEFAULT_ATTRIBUTE_KEYS,
@@ -71,6 +81,16 @@ __all__ = [
     "to_snake_case",
     "safe_identifier",
     "normalize_identifier_type",
+    # Path constants
+    "PERSON_KEY",
+    "PERSON_KEY_PASCAL",
+    "PERSON_DOT",
+    "PERSON_DOT_PASCAL",
+    "PERSON_DOT_ZERO",
+    "PERSON_DOT_PASCAL_ZERO",
+    "PERSON_DOT_ALL",
+    "PERSON_JSON_PATH_PREFIX",
+    "PERSON_DOT_LENGTH",
     # OpenAPI helpers
     "OpenAPIPaths",
     "OpenAPIExtensions",

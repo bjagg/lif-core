@@ -22,9 +22,9 @@ from lif.datatypes.core import (
     LIFUpdate,
 )
 from lif.exceptions.core import ResourceNotFoundException
+from lif.lif_schema_config import PERSON_KEY_PASCAL, PERSON_DOT_PASCAL_ZERO
 from lif.logging.core import get_logger
 from lif.mongodb_connection.core import get_database_async
-from lif.query_planner_service.util import PERSON_KEY_PASCAL, PERSON_DOT_PASCAL_ZERO
 
 logger = get_logger(__name__)
 

@@ -3234,7 +3234,7 @@ COPY public."EntityAssociation" ("Id", "ParentEntityId", "ChildEntityId", "Relat
 19	129	132	\N	\N	\N	\N	\N	\N	\N	LIF	f	f	\N	\N
 20	129	133	\N	\N	\N	\N	\N	\N	\N	LIF	f	f	\N	\N
 91	129	304	aligned	Reference	\N	\N	\N	\N	\N	LIF	f	f	\N	\N
-95	134	129	instanceOf	Reference	Specification of the Credential	\N	\N	\N	\N	LIF	f	f	\N	\N
+95	134	129	InstanceOf	Reference	Specification of the Credential	\N	\N	\N	\N	LIF	f	f	\N	\N
 18	130	131	\N	\N	\N	\N	\N	\N	\N	LIF	f	f	\N	\N
 22	134	135	\N	\N	\N	\N	\N	\N	\N	LIF	f	f	\N	\N
 23	134	136	\N	\N	\N	\N	\N	\N	\N	LIF	f	f	\N	\N

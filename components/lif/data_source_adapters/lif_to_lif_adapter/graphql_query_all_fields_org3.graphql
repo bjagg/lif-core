@@ -19,7 +19,7 @@ query GetPersonByIdentifier($identifier: String!, $identifierType: String!) {
     CredentialAward {
       informationSourceId
       awardStatus
-      instanceOfRefCredential {
+      InstanceOfRefCredential {
         informationSourceId
         informationSourceOrganization
         identifier

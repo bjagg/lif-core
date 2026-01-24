@@ -30,3 +30,4 @@ packages = ["lif"]
 "../../components/lif/mongodb_connection" = "lif/mongodb_connection"
 "../../components/lif/exceptions" = "lif/exceptions"
 "../../components/lif/composer" = "lif/composer"
+"../../components/lif/lif_schema_config" = "lif/lif_schema_config"

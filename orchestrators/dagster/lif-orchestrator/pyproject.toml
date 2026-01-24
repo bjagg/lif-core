@@ -12,6 +12,7 @@ dependencies = [
 dev = [
     "dagster-webserver",
     "dagster-dg-cli",
+    "pytest>=8.4.2",
 ]
 
 [build-system]
@@ -31,6 +32,7 @@ packages = ["lif"]
 "../../../components/lif/data_source_adapters" = "lif/data_source_adapters"
 "../../../components/lif/datatypes" = "lif/datatypes"
 "../../../components/lif/exceptions" = "lif/exceptions"
+"../../../components/lif/lif_schema_config" = "lif/lif_schema_config"
 "../../../components/lif/logging" = "lif/logging"
 "../../../components/lif/query_planner_service" = "lif/query_planner_service"
 

@@ -30,3 +30,4 @@ packages = ["lif"]
 "../../components/lif/datatypes" = "lif/datatypes"
 "../../components/lif/exceptions" = "lif/exceptions"
 "../../components/lif/logging" = "lif/logging"
+"../../components/lif/lif_schema_config" = "lif/lif_schema_config"

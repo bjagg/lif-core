@@ -18,6 +18,23 @@ import re
 from typing import Optional
 
 
+# =============================================================================
+# Path Constants for Person entity navigation
+# =============================================================================
+# These constants are used across multiple services for consistent path handling
+
+PERSON_KEY: str = "person"
+PERSON_KEY_PASCAL: str = "Person"
+PERSON_DOT: str = "person."
+PERSON_DOT_PASCAL: str = "Person."
+PERSON_DOT_ZERO: str = "person.0"
+PERSON_DOT_PASCAL_ZERO: str = "Person.0"
+PERSON_DOT_ALL: str = "person.all"
+PERSON_JSON_PATH_PREFIX: str = "$.person[0]."
+
+PERSON_DOT_LENGTH: int = len(PERSON_DOT)
+
+
 def to_graphql_query_name(schema_name: Optional[str]) -> Optional[str]:
     """
     Convert schema entity name to GraphQL query field name.

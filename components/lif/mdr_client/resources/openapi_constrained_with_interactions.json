@@ -1566,7 +1566,7 @@
 									}
 								}
 							},
-							"instanceOfRefCredential": {
+							"InstanceOfRefCredential": {
 								"type": "object",
 								"required": [
 									"identifier",

@@ -10,21 +10,21 @@ from typing import List
 from jsonpath_ng import parse
 
 from lif.datatypes.core import LIFFragment, LIFQuery, LIFQueryPlan, LIFQueryPlanPart, LIFPersonIdentifier, LIFRecord
+from lif.lif_schema_config import (
+    PERSON_DOT,
+    PERSON_DOT_PASCAL,
+    PERSON_DOT_ALL,
+    PERSON_DOT_ZERO,
+    PERSON_DOT_PASCAL_ZERO,
+    PERSON_KEY_PASCAL,
+    PERSON_JSON_PATH_PREFIX,
+    PERSON_DOT_LENGTH,
+)
 from lif.logging.core import get_logger
 from lif.query_planner_service.datatypes import LIFQueryPlannerInfoSourceConfig
 
 
 logger = get_logger(__name__)
-
-PERSON_DOT: str = "person."
-PERSON_DOT_PASCAL: str = "Person."
-PERSON_DOT_ALL: str = "person.all"
-PERSON_DOT_ZERO: str = "person.0"
-PERSON_DOT_PASCAL_ZERO: str = "Person.0"
-PERSON_KEY_PASCAL: str = "Person"
-PERSON_JSON_PATH_PREFIX: str = "$.person[0]."
-
-PERSON_DOT_LENGTH: int = len(PERSON_DOT)
 
 
 def _find_key_case_insensitive(d: dict, key: str) -> str | None:
@@ -213,7 +213,8 @@ def create_lif_query_plan_from_information_sources_config(
         LIFQueryPlan: The created LIF query plan.
     """
     if not config:
-        raise ValueError("Information sources config is empty or None.")
+        logger.info("Information sources config is empty - returning empty query plan.")
+        return LIFQueryPlan(root=[])
 
     lif_query_plan_parts: List[LIFQueryPlanPart] = []
     for info_source in config:
