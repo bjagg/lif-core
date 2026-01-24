@@ -56,9 +56,19 @@ class LIFSchemaConfig:
 
     Attributes:
         # Root Type Configuration
-        root_type_name: Primary schema root type (e.g., "Person")
-        additional_root_types: Other root types to process (e.g., ["Course", "Organization"])
-        reference_data_roots: Roots that are indexed but not directly queryable
+        root_type_name: Primary schema root type that users query directly (e.g., "Person")
+        additional_root_types: Other root types in the schema that serve as reference data -
+            indexed for search but not directly queryable as standalone entities
+
+        Example configuration:
+            root_type_name = "Person"  # Users query: "Find person with ID X"
+            additional_root_types = ["Course", "Organization", "Credential"]
+
+            In this setup, Person is the primary queryable entity. Course, Organization,
+            and Credential are indexed (for semantic search) but exist only as reference
+            data within Person records - you cannot query "Find Organization with ID Y"
+            directly. The `reference_data_roots` property returns additional_root_types
+            as a Set for convenient membership testing.
 
         # Query Planner URLs
         query_planner_base_url: Base URL for query planner service
@@ -81,9 +91,6 @@ class LIFSchemaConfig:
     root_type_name: str = "Person"
     additional_root_types: List[str] = field(
         default_factory=lambda: ["Course", "Organization", "Credential"]
-    )
-    reference_data_roots: Set[str] = field(
-        default_factory=lambda: {"Course", "Organization", "Credential"}
     )
 
     # Query Planner URLs
@@ -119,20 +126,6 @@ class LIFSchemaConfig:
         if not self.root_type_name:
             errors.append("root_type_name cannot be empty")
 
-        # Validate reference_data_roots doesn't include root_type_name
-        if self.root_type_name in self.reference_data_roots:
-            errors.append(
-                f"root_type_name '{self.root_type_name}' should not be in reference_data_roots"
-            )
-
-        # Validate reference_data_roots is subset of all root types
-        all_roots = {self.root_type_name} | set(self.additional_root_types)
-        invalid_refs = self.reference_data_roots - all_roots
-        if invalid_refs:
-            errors.append(
-                f"reference_data_roots {invalid_refs} must be in root types {all_roots}"
-            )
-
         # Validate timeouts are positive
         if self.query_timeout_seconds <= 0:
             errors.append(f"query_timeout_seconds must be positive, got {self.query_timeout_seconds}")
@@ -148,8 +141,7 @@ class LIFSchemaConfig:
 
         logger.info("LIF schema configuration validated successfully")
         logger.debug(f"  Root type: {self.root_type_name}")
-        logger.debug(f"  Additional roots: {self.additional_root_types}")
-        logger.debug(f"  Reference data roots: {self.reference_data_roots}")
+        logger.debug(f"  Additional roots (reference data): {self.additional_root_types}")
 
     @classmethod
     def from_environment(cls) -> "LIFSchemaConfig":
@@ -158,8 +150,7 @@ class LIFSchemaConfig:
 
         Environment Variables:
             LIF_GRAPHQL_ROOT_TYPE_NAME: Primary root type name (default: "Person")
-            LIF_GRAPHQL_ROOT_NODES: Comma-separated additional root types
-            LIF_GRAPHQL_REFERENCE_DATA_ROOTS: Comma-separated reference data roots
+            LIF_GRAPHQL_ROOT_NODES: Comma-separated additional root types (these are reference data)
             LIF_QUERY_PLANNER_URL: Query planner base URL
             LIF_QUERY_TIMEOUT_SECONDS: Query timeout in seconds
             LIF_MDR_API_URL: MDR API URL
@@ -178,22 +169,12 @@ class LIFSchemaConfig:
         root_type_name = os.getenv("LIF_GRAPHQL_ROOT_TYPE_NAME",
                                    os.getenv("LIF_GRAPHQL_ROOT_NODE", "Person"))
 
-        # Parse additional root types
+        # Parse additional root types (these serve as reference data)
         root_nodes_str = os.getenv("LIF_GRAPHQL_ROOT_NODES", "Course,Organization,Credential")
         additional_root_types = [
             node.strip() for node in root_nodes_str.split(",")
             if node.strip() and node.strip() != root_type_name
         ]
-
-        # Parse reference data roots
-        reference_roots_str = os.getenv(
-            "LIF_GRAPHQL_REFERENCE_DATA_ROOTS",
-            "Course,Organization,Credential"
-        )
-        reference_data_roots = {
-            node.strip() for node in reference_roots_str.split(",")
-            if node.strip()
-        }
 
         # Support both new and old env var names for top_k
         top_k = int(os.getenv(
@@ -205,7 +186,6 @@ class LIFSchemaConfig:
             # Root types
             root_type_name=root_type_name,
             additional_root_types=additional_root_types,
-            reference_data_roots=reference_data_roots,
             # Query planner
             query_planner_base_url=os.getenv("LIF_QUERY_PLANNER_URL", "http://localhost:8002"),
             query_timeout_seconds=int(os.getenv("LIF_QUERY_TIMEOUT_SECONDS", "20")),
@@ -258,6 +238,15 @@ class LIFSchemaConfig:
     def all_root_types(self) -> List[str]:
         """All root types (primary + additional)."""
         return [self.root_type_name] + self.additional_root_types
+
+    @property
+    def reference_data_roots(self) -> Set[str]:
+        """Root types that are reference data (indexed but not directly queryable).
+
+        All additional_root_types are considered reference data - they exist to
+        provide supporting context for the primary root_type_name.
+        """
+        return set(self.additional_root_types)
 
     def is_reference_data_root(self, root_name: str) -> bool:
         """Check if a root type is reference data (indexed but not queryable)."""

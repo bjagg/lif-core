@@ -54,31 +54,19 @@ class TestLIFSchemaConfig:
         assert config.query_planner_update_url == "http://localhost:8002/update"
         assert "Person" in config.all_root_types
 
-    def test_validation_root_in_reference(self):
-        """Test validation fails if root_type_name in reference_data_roots."""
-        with pytest.raises(LIFSchemaConfigError) as exc_info:
-            LIFSchemaConfig(
-                root_type_name="Person",
-                reference_data_roots={"Person", "Course"},
-            )
-        assert "should not be in reference_data_roots" in str(exc_info.value)
-
-    def test_validation_invalid_reference_root(self):
-        """Test validation fails if reference root not in all roots."""
-        with pytest.raises(LIFSchemaConfigError) as exc_info:
-            LIFSchemaConfig(
-                root_type_name="Person",
-                additional_root_types=["Course"],
-                reference_data_roots={"Course", "InvalidRoot"},
-            )
-        assert "must be in root types" in str(exc_info.value)
+    def test_reference_data_roots_derived_from_additional(self):
+        """Test that reference_data_roots is derived from additional_root_types."""
+        config = LIFSchemaConfig(
+            root_type_name="Person",
+            additional_root_types=["Course", "Organization"],
+        )
+        assert config.reference_data_roots == {"Course", "Organization"}
 
     def test_from_environment(self):
         """Test loading configuration from environment variables."""
         env_vars = {
             "LIF_GRAPHQL_ROOT_TYPE_NAME": "TestEntity",
             "LIF_GRAPHQL_ROOT_NODES": "RefA,RefB",
-            "LIF_GRAPHQL_REFERENCE_DATA_ROOTS": "RefA,RefB",
             "LIF_QUERY_PLANNER_URL": "http://test:9000",
             "SEMANTIC_SEARCH__TOP_K": "50",
         }
@@ -86,7 +74,7 @@ class TestLIFSchemaConfig:
             config = LIFSchemaConfig.from_environment()
             assert config.root_type_name == "TestEntity"
             assert config.additional_root_types == ["RefA", "RefB"]
-            assert config.reference_data_roots == {"RefA", "RefB"}
+            assert config.reference_data_roots == {"RefA", "RefB"}  # derived from additional_root_types
             assert config.query_planner_base_url == "http://test:9000"
             assert config.semantic_search_top_k == 50
 
@@ -101,7 +89,6 @@ class TestLIFSchemaConfig:
         config = LIFSchemaConfig(
             root_type_name="Person",
             additional_root_types=["Course", "Organization"],
-            reference_data_roots={"Course", "Organization"},
         )
         queryable = config.get_queryable_roots()
         assert queryable == ["Person"]
