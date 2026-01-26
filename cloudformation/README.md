@@ -62,8 +62,8 @@ The service.yml template supports making services public. To make a service publ
 
 1. Set `UseLbForService = true`
 2. Set `DomainNames` or `PathPattern` (for dev/demo use DomainNames)
-    * Example: `advisor.lif.unicon.net`
-    * Must be within the domain for the given env (dev - `?.lif.unicon.net`, demo - `?.demo.lif.unicon.net`)
+    * Example: `advisor.dev.lif.unicon.net`
+    * Must be within the domain for the given env (dev - `?.dev.lif.unicon.net`, demo - `?.demo.lif.unicon.net`)
 3. Set `Priority`
     * Must be a unique integer for the given env with respect to other public services
     * Look at other param files for public services (UseLbForService = true) for the env:
