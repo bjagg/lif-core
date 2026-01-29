@@ -13,7 +13,6 @@ not just sample data files, to verify orchestration has completed.
 
 import pytest
 from typing import Any
-import warnings
 
 import httpx
 
@@ -324,14 +323,10 @@ class TestSemanticSearchDataConsistency:
         return query_graphql_by_identifier(identifier)
 
     def _handle_missing_user_graphql(self, user_name: str, graphql_data: Any) -> None:
-        """Handle user not found in GraphQL - fail for core, warn/skip for async."""
+        """Handle user not found in GraphQL - fail for core, skip for async."""
         if graphql_data is None:
             if self._is_async_user(user_name):
-                warnings.warn(
-                    f"{user_name} not yet ingested into org1 "
-                    "(async user - orchestration may be pending)"
-                )
-                pytest.skip(f"{user_name} not yet available in GraphQL")
+                pytest.skip(f"{user_name} not yet available in GraphQL (async user)")
             else:
                 pytest.fail(f"{user_name} not found in GraphQL (core user should exist)")
 
@@ -364,17 +359,11 @@ class TestSemanticSearchDataConsistency:
         # Core users must be present
         assert not missing_core, f"Core users missing from GraphQL: {missing_core}"
 
-        # Async users - warn if missing
-        if missing_async:
-            warnings.warn(
-                f"Async users not yet in GraphQL: {missing_async} "
-                "(orchestration may still be running)"
-            )
-
         # Log summary
         print(f"\n--- GraphQL User Availability ---")
-        print(f"Users found in GraphQL: {sorted(found_users)}")
-        print(f"Missing async users: {missing_async}")
+        print(f"Users found: {sorted(found_users)}")
+        if missing_async:
+            print(f"Async users pending: {missing_async}")
 
     @pytest.mark.parametrize("user_name", ["Matt", "Renee", "Sarah", "Tracy", "Alan", "Jenna"])
     def test_user_queryable_in_graphql(
@@ -442,32 +431,29 @@ class TestSemanticSearchDataConsistency:
         org2_sample_data: SampleDataLoader,
         user_name: str,
     ) -> None:
-        """Verify user proficiencies have descriptions (from sample data)."""
+        """Verify user proficiencies have descriptions (from sample data).
+
+        Users with zero proficiencies in sample data pass - this is valid.
+        Users with proficiencies should have at least some with descriptions.
+        """
         # Get expected data from sample files
         sample_person = self._get_sample_data_for_user(
             user_name, org1_sample_data, org2_sample_data
         )
         if sample_person is None:
-            pytest.skip(f"No sample data found for {user_name}")
+            # No sample data for this user - valid for async users
+            return
 
         proficiencies = sample_person.person.get("Proficiency", [])
         if not proficiencies:
-            pytest.skip(f"{user_name} has no proficiencies in sample data")
+            # Zero proficiencies is valid - some users don't have proficiency data
+            return
 
+        # If user has proficiencies, at least some should have descriptions
         with_descriptions = [p for p in proficiencies if p.get("description")]
-        without_descriptions = [
-            p.get("name", "unknown") for p in proficiencies if not p.get("description")
-        ]
-
         assert len(with_descriptions) > 0, (
-            f"{user_name} has no proficiencies with descriptions"
+            f"{user_name} has {len(proficiencies)} proficiencies but none have descriptions"
         )
-
-        if without_descriptions:
-            warnings.warn(
-                f"{user_name}: {len(without_descriptions)}/{len(proficiencies)} "
-                f"proficiencies missing descriptions: {without_descriptions[:3]}"
-            )
 
     def test_all_users_summary(
         self,
@@ -515,10 +501,8 @@ class TestSemanticSearchDataConsistency:
         print("\n--- GraphQL Test User Summary (All 6 Users) ---")
         for line in summary:
             print(f"  {line}")
-
-        # Warn about missing async users
         if missing_async:
-            warnings.warn(f"Async users not yet ingested: {missing_async}")
+            print(f"  Async users pending ingestion: {missing_async}")
 
 
 @pytest.mark.layer("semantic_search")
