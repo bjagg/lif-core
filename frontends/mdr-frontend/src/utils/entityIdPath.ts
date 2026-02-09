@@ -25,15 +25,19 @@ export interface ParsedEntityIdPath {
 }
 
 /**
- * Check if a path string uses the legacy dot-separated format.
- * Legacy format was: "Entity.Child.attribute" (names) or "4.238.6" (IDs with dots)
+ * Check if a path string uses the legacy format (name-based or dot-separated).
+ * Legacy formats include:
+ *   - Name-based paths: "Person", "Person.CredentialAward"
+ *   - Old numeric dot-separated: "4.238.6"
  * This is used for detection/warning purposes only - legacy format is NOT supported.
  */
 export function isLegacyDotFormat(path: string | null | undefined): boolean {
   if (!path) return false;
   const trimmed = path.trim();
-  // Legacy format uses dots, new format uses commas
-  return trimmed.includes('.') && !trimmed.includes(',');
+  // Legacy if it contains dots (old format) or contains non-numeric characters (name-based)
+  const hasDots = trimmed.includes('.') && !trimmed.includes(',');
+  const hasNonNumeric = /[^\d,\s-]/.test(trimmed);
+  return hasDots || hasNonNumeric;
 }
 
 /**
