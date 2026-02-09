@@ -120,7 +120,7 @@ const MappingsView: React.FC = () => {
     const leftScrollRef = useRef<HTMLDivElement | null>(null);
     const rightScrollRef = useRef<HTMLDivElement | null>(null);
     const wiresSlotRef = useRef<HTMLDivElement | null>(null);
-    // Path-aware attribute element registries: keys are `${EntityIdPath}|${AttributeId}` or just `${AttributeId}` as fallback
+    // Path-aware attribute element registries: keys are `${PathId}|${AttributeId}` or just `${AttributeId}` as fallback
     const attrElementsLeft = useRef<Map<string, HTMLElement>>(new Map());
     const attrElementsRight = useRef<Map<string, HTMLElement>>(new Map());
 
@@ -1519,10 +1519,8 @@ const MappingsView: React.FC = () => {
                     (t as any).SourceAttributes?.[0];
                 const srcId = srcAttr?.AttributeId;
                 if (!srcId) return;
-                const srcKey = srcAttr?.EntityIdPath
-                    ? `${srcAttr.EntityIdPath}|${srcId}`
-                    : String(srcId);
-                const leftEl = attrElementsLeft.current.get(srcKey);
+                const srcKey = buildAttributeLookupKey(srcAttr?.EntityIdPath, srcId);
+                const leftEl = attrElementsLeft.current.get(srcKey) || attrElementsLeft.current.get(String(srcId));
                 if (!leftEl) return;
                 const leftDot =
                     leftEl.querySelector<HTMLElement>(
