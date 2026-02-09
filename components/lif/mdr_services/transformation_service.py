@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from fastapi import HTTPException
 from lif.datatypes.mdr_sql_model import (
@@ -235,17 +235,31 @@ async def check_transformation_attribute(session: AsyncSession, anchor_data_mode
         previous_id = raw_node_id
 
 
+def check_is_entity_id_path_v2(transformation_attribute: CreateTransformationDTO | UpdateTransformationDTO) -> bool:
+    return (
+        (
+            transformation_attribute.SourceAttributes
+            and transformation_attribute.SourceAttributes[0].EntityIdPath
+            and (
+                transformation_attribute.SourceAttributes[0].EntityIdPath.__contains__(",")
+                or transformation_attribute.SourceAttributes[0].EntityIdPath.lstrip("-").isdigit()
+            )
+        )
+        or (
+            transformation_attribute.TargetAttribute
+            and transformation_attribute.TargetAttribute.EntityIdPath
+            and (
+                transformation_attribute.TargetAttribute.EntityIdPath.__contains__(",")
+                or transformation_attribute.TargetAttribute.EntityIdPath.lstrip("-").isdigit()
+            )
+        )
+        or False
+    )
+
+
 async def create_transformation(session: AsyncSession, data: CreateTransformationDTO):
     # Once the UX is in place, only keep the `is_entity_id_path_v2` code flows
-    is_entity_id_path_v2 = (
-        True
-        if data.TargetAttribute
-        and (
-            data.TargetAttribute.EntityIdPath.__contains__(",")
-            or data.TargetAttribute.EntityIdPath.lstrip("-").isdigit()
-        )
-        else False
-    )
+    is_entity_id_path_v2 = check_is_entity_id_path_v2(data)
     logger.info(f"Creating transformation; is_entity_id_path_v2={is_entity_id_path_v2}")
 
     # Checking if transformation group exists
@@ -432,15 +446,7 @@ async def get_transformation_by_id(session: AsyncSession, transformation_id: int
 
 async def update_transformation(session: AsyncSession, transformation_id: int, data: UpdateTransformationDTO) -> dict:
     # Once the UX is in place, only keep the `is_entity_id_path_v2` code flows
-    is_entity_id_path_v2 = (
-        True
-        if data.TargetAttribute
-        and (
-            data.TargetAttribute.EntityIdPath.__contains__(",")
-            or data.TargetAttribute.EntityIdPath.lstrip("-").isdigit()
-        )
-        else False
-    )
+    is_entity_id_path_v2 = check_is_entity_id_path_v2(data)
     logger.info(f"Updating transformation; is_entity_id_path_v2={is_entity_id_path_v2}")
 
     # Validate transformation
