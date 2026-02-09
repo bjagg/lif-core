@@ -1104,14 +1104,34 @@ const MappingsView: React.FC = () => {
                             return undefined;
                         })();
 
+                    // Build the full source EntityIdPath (includes attribute as negative suffix)
+                    const fullSrcEntityIdPath = appendAttributeToPath(srcPath, dragSourceAttr.Id);
+                    // Build the full target EntityIdPath for comparison (includes attribute as negative suffix)
+                    const fullTgtEntityIdPath = appendAttributeToPath(tgtPath, dragTargetAttrId);
+
+                    // Check if this exact source->target pair already exists in ANY transformation
+                    const duplicateExists = (group.Transformations || []).some((t) => {
+                        const tpath = (t.TargetAttribute as any)?.EntityIdPath || '';
+                        const targetMatches =
+                            t.TargetAttribute?.AttributeId === dragTargetAttrId &&
+                            String(tpath) === String(fullTgtEntityIdPath || '');
+                        if (!targetMatches) return false;
+                        // Check if this specific source attribute is already mapped
+                        const srcs: any[] = Array.isArray((t as any).SourceAttributes) ? (t as any).SourceAttributes : [];
+                        return srcs.some((s: any) => String(s.EntityIdPath || '') === String(fullSrcEntityIdPath || ''));
+                    });
+                    if (duplicateExists) {
+                        // Source->target pair already exists; silently cancel
+                        return;
+                    }
+
                     // Enforce 1 transformation per target (EntityIdPath+AttributeId)
                     const existing = (group.Transformations || []).find((t) => {
-                        const tid = t.TargetAttribute?.AttributeId;
                         const tpath =
-                            (t.TargetAttribute as any)?.EntityIdPath || null;
+                            (t.TargetAttribute as any)?.EntityIdPath || '';
                         return (
-                            tid === dragTargetAttrId &&
-                            String(tpath || '') === String(tgtPath || '')
+                            t.TargetAttribute?.AttributeId === dragTargetAttrId &&
+                            String(tpath) === String(fullTgtEntityIdPath || '')
                         );
                     });
 
@@ -1147,8 +1167,7 @@ const MappingsView: React.FC = () => {
                                   },
                               ]
                             : [];
-                        const key = (sa: any) =>
-                            `${sa.EntityIdPath || ''}|${sa.AttributeId}`;
+                        const key = (sa: any) => String(sa.EntityIdPath || '');
                         const nextSrcs = [...currentSrcs];
                         const deriveEntityIdForUpdate = (
                             path: string | null | undefined,
@@ -1176,9 +1195,12 @@ const MappingsView: React.FC = () => {
                             EntityIdPath: appendAttributeToPath(srcPath, dragSourceAttr.Id),
                             EntityId: deriveEntityIdForUpdate(srcPath, dragSourceAttr.Id),
                         } as any;
-                        if (!nextSrcs.some((s) => key(s) === key(newSrc))) {
-                            nextSrcs.push(newSrc);
+                        const sourceAlreadyExists = nextSrcs.some((s) => key(s) === key(newSrc));
+                        if (sourceAlreadyExists) {
+                            // Source->target pair already exists; cancel without making any changes
+                            return;
                         }
+                        nextSrcs.push(newSrc);
                         const updated = await updateTransformationAttributes(
                             existing.Id,
                             {
@@ -1566,20 +1588,38 @@ const MappingsView: React.FC = () => {
                     })();
 
                 const results: Array<TransformationData | null> = [];
+                // Build full target EntityIdPath (includes attribute as negative suffix) for proper comparison
+                const fullReassignTgtPath = appendAttributeToPath(tgtPath, reassignHoverTargetId!);
                 for (const t of reassignTransformations) {
                     try {
                         const firstSrc: any = (t as any).SourceAttributes?.[0];
+                        const srcEntityIdPath = String((firstSrc as any)?.EntityIdPath || '');
+
+                        // Check if this exact source->target pair already exists; if so, skip entirely (revert the move)
+                        const duplicateExists = (group?.Transformations || []).some((et) => {
+                            if (et.Id === t.Id) return false; // don't match the transformation being moved
+                            const tpath = (et.TargetAttribute as any)?.EntityIdPath || '';
+                            const targetMatches =
+                                et.TargetAttribute?.AttributeId === reassignHoverTargetId &&
+                                String(tpath) === String(fullReassignTgtPath || '');
+                            if (!targetMatches) return false;
+                            const srcs: any[] = Array.isArray((et as any).SourceAttributes) ? (et as any).SourceAttributes : [];
+                            return srcs.some((s: any) => String(s.EntityIdPath || '') === srcEntityIdPath);
+                        });
+                        if (duplicateExists) {
+                            // Source->target pair already exists; skip this reassignment (revert)
+                            results.push(null);
+                            continue;
+                        }
+
                         // Check if a transformation already exists for this target (id+path)
                         const existing = (group?.Transformations || []).find(
                             (et) => {
-                                const tid = et.TargetAttribute?.AttributeId;
                                 const tpath =
-                                    (et.TargetAttribute as any)?.EntityIdPath ||
-                                    null;
+                                    (et.TargetAttribute as any)?.EntityIdPath || '';
                                 return (
-                                    tid === reassignHoverTargetId &&
-                                    String(tpath || '') ===
-                                        String(tgtPath || '')
+                                    et.TargetAttribute?.AttributeId === reassignHoverTargetId &&
+                                    String(tpath) === String(fullReassignTgtPath || '')
                                 );
                             }
                         );
@@ -1604,8 +1644,7 @@ const MappingsView: React.FC = () => {
                                       },
                                   ]
                                 : [];
-                            const key = (sa: any) =>
-                                `${sa.EntityIdPath || ''}|${sa.AttributeId}`;
+                            const key = (sa: any) => String(sa.EntityIdPath || '');
                             const merged = [...currentSrcs];
                             const newSrc = {
                                 AttributeId: firstSrc?.AttributeId || firstSrc?.Id,
@@ -1632,12 +1671,13 @@ const MappingsView: React.FC = () => {
                                     return undefined;
                                 })(),
                             } as any;
-                            if (
-                                newSrc.AttributeId &&
-                                !merged.some((s) => key(s) === key(newSrc))
-                            ) {
-                                merged.push(newSrc);
+                            const sourceAlreadyExists = newSrc.AttributeId && merged.some((s) => key(s) === key(newSrc));
+                            if (sourceAlreadyExists) {
+                                // Source->target pair already exists in target; skip this reassignment (don't merge or delete)
+                                results.push(null);
+                                continue;
                             }
+                            merged.push(newSrc);
                             const updated =
                                 await updateTransformationAttributes(
                                     existing.Id,
