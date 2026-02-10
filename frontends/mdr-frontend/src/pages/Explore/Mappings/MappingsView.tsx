@@ -1814,15 +1814,7 @@ const MappingsView: React.FC = () => {
                                     targetModel
                                 ),
                             } as any;
-                            // Build source & target JSONata paths for naming and default expression on reassignment create
-                            const srcAttrName =
-                                (firstSrc as any)?.AttributeName ||
-                                (firstSrc as any)?.Name ||
-                                undefined;
-                            const sourcePathExpr = buildDirectKeyExpression(
-                                (firstSrc as any)?.EntityIdPath,
-                                srcAttrName || null
-                            );
+                            // Derive target attribute name for the transformation name
                             const targetAttrName = (() => {
                                 if (targetModel?.Entities) {
                                     for (const ewa of targetModel.Entities) {
@@ -1841,20 +1833,9 @@ const MappingsView: React.FC = () => {
                                     tgtPath,
                                     targetAttrName
                                 ) || targetAttrName;
-                            let srcSchema: any = null;
-                            let tgtSchema: any = null;
-                            try {
-                                if (sourceModel?.EntityTree) srcSchema = generateJsonSchema(sourceModel, sourceModel.EntityTree);
-                            } catch { /* ignore */ }
-                            try {
-                                if (targetModel?.EntityTree) tgtSchema = generateJsonSchema(targetModel, targetModel.EntityTree);
-                            } catch { /* ignore */ }
-                            const equalityExpr = buildDefaultAssignmentExpression(
-                                srcSchema,
-                                tgtSchema,
-                                sourcePathExpr || '',
-                                targetPathExpr || ''
-                            ) || (targetPathExpr && sourcePathExpr ? `${targetPathExpr} = ${sourcePathExpr}` : sourcePathExpr || targetPathExpr || '');
+                            // Copy the expression from the old transformation instead of generating a new one.
+                            // This preserves any manual edits the user may have made to the expression.
+                            const preservedExpression = t.Expression;
                             // Use createOrUpdateTransformation to handle duplicate target attributes
                             const existingTransforms = group?.Transformations || transformations;
                             const result = await createOrUpdateTransformation({
@@ -1862,7 +1843,7 @@ const MappingsView: React.FC = () => {
                                     t.TransformationGroupId,
                                 ExpressionLanguage:
                                     (t.ExpressionLanguage as any) || 'JSONata',
-                                Expression: equalityExpr,
+                                Expression: preservedExpression,
                                 Name: targetPathExpr,
                                 SourceAttributes: srcAttrPayload
                                     ? [srcAttrPayload]
