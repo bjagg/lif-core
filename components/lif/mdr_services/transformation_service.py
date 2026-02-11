@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from fastapi import HTTPException
 from lif.datatypes.mdr_sql_model import (
@@ -25,18 +25,9 @@ from lif.mdr_dto.transformation_group_dto import (
     UpdateTransformationGroupDTO,
 )
 from lif.mdr_services.attribute_service import get_attribute_dto_by_id
-from lif.mdr_services.entity_association_service import (
-    retrieve_all_entity_associations,
-    validate_entity_associations_for_transformation_attribute,
-)
+from lif.mdr_services.entity_association_service import retrieve_all_entity_associations
 from lif.mdr_services.entity_attribute_association_service import retrieve_all_entity_attribute_associations
-from lif.mdr_services.entity_service import is_entity_by_unique_name
-from lif.mdr_services.helper_service import (
-    check_attribute_by_id,
-    check_datamodel_by_id,
-    check_entity_attribute_association,
-    check_entity_by_id,
-)
+from lif.mdr_services.helper_service import check_attribute_by_id, check_datamodel_by_id, check_entity_by_id
 from lif.mdr_services.inclusions_service import check_existing_inclusion
 from lif.mdr_utils.logger_config import get_logger
 from sqlalchemy import and_
@@ -45,24 +36,6 @@ from sqlalchemy.orm import aliased
 from sqlmodel import func, select
 
 logger = get_logger(__name__)
-
-
-async def validate_entity_id_path(session: AsyncSession, transformation_attribute: Dict):
-    if transformation_attribute.EntityIdPath:
-        # Validate that EntityIdPath either corresponds to an Entity with a UniqueName of the path
-        if await is_entity_by_unique_name(session=session, unique_name=transformation_attribute.EntityIdPath):
-            return True
-
-        # OR that it corresponds to a valid chain of EntityAssociations by entity name
-        if await validate_entity_associations_for_transformation_attribute(
-            session=session, transformation_attribute=transformation_attribute
-        ):
-            return True
-
-        raise HTTPException(
-            status_code=400,
-            detail=f"EntityIdPath '{transformation_attribute.EntityIdPath}' is not valid for the provided EntityId {transformation_attribute.EntityId}. It must either correspond to an Entity with that UniqueName or a valid chain of EntityAssociations by entity name.",
-        )
 
 
 def parse_transformation_path(id_path: str) -> List[int]:
@@ -120,8 +93,8 @@ async def check_transformation_attribute(session: AsyncSession, anchor_data_mode
     - Entities and attributes must 'chain' together via the association tables. This is different based on the type of the anchor data model.
     """
     transformation_path_ids = parse_transformation_path(id_path)
-    previous_id = None
-
+    previous_node = None
+    current_node = None
     for i, raw_node_id in enumerate(transformation_path_ids):
         # Gather details
 
@@ -132,11 +105,15 @@ async def check_transformation_attribute(session: AsyncSession, anchor_data_mode
         initial_signature = f"Node {raw_node_id}({cleaned_node_id}) in the entityIdPath ({id_path})"
         # Also confirms the entity / attribute exists and is not deleted
         try:
-            node_data_model_id = (
+            # If there is a current node, capture it as the previous node for association checks.
+            if current_node:
+                previous_node = current_node
+            current_node = (
                 await check_entity_by_id(session=session, id=cleaned_node_id)
                 if node_type == DatamodelElementType.Entity
                 else await check_attribute_by_id(session=session, id=cleaned_node_id)
-            ).DataModelId
+            )
+            node_data_model_id = current_node.DataModelId
         except HTTPException as e:
             logger.error(f"{initial_signature} - {e.detail}")
             raise
@@ -170,98 +147,118 @@ async def check_transformation_attribute(session: AsyncSession, anchor_data_mode
                 f"{signature} - Is included in the non-self-contained anchor data model {anchor_data_model_id}."
             )
 
-        # First node has no association checks needed, check the rest for associations
-        if i > 0:
-            nodes = (
+        # First node has no association checks needed, check the rest for associations (ie all that have a previous node to associate from)
+        if previous_node:
+            associations = (
                 await retrieve_all_entity_associations(
                     session=session,
-                    parent_entity_id=previous_id,
+                    parent_entity_id=previous_node.Id,
                     child_entity_id=raw_node_id,
                     extended_by_data_model_id=anchor_data_model_id,
                 )
                 if node_type == DatamodelElementType.Entity
                 else await retrieve_all_entity_attribute_associations(
                     session=session,
-                    entity_id=previous_id,
+                    entity_id=previous_node.Id,
                     attribute_id=abs(raw_node_id),
                     extended_by_data_model_id=anchor_data_model_id,
                 )
             )
-            logger.info(f"{signature} - Retrieved {len(nodes)} associations to review.")
+            logger.info(f"{signature} - Retrieved {len(associations)} associations to review.")
 
             found_valid_association = False
-            # A node is either an entity or attribute
-            for node in nodes:
+            # An association is either for an entity or attribute
+            for association in associations:
+                logger.info(f"{signature} - Reviewing association {association.Id}: {association}")
                 if is_self_contained_anchor_model:
-                    if (node_type == DatamodelElementType.Entity and node.Extension == True) or (
-                        node.ExtendedByDataModelId is not None
+                    if (node_type == DatamodelElementType.Entity and association.Extension == True) or (
+                        association.ExtendedByDataModelId is not None
                     ):
                         # Base LIF and Source Schema should not have extensions
-                        message = f"{signature} - Association from parent {previous_id} to child {raw_node_id} is marked as an extension, but {anchor_data_model.Id} is a self-contained data model."
-                        logger.warning(message)
+                        message = f"{signature} - Association from parent {previous_node.Id} to child {raw_node_id} is marked as an extension, but {anchor_data_model.Id} is a self-contained data model."
+                        logger.warning(f"{message} - association: {association}")
                         raise HTTPException(status_code=400, detail=message)
                     found_valid_association = True
                     logger.info(
-                        f"{signature} - Association from parent {previous_id} to child {raw_node_id} in the self-contained model is valid"
+                        f"{signature} - Association from parent {previous_node.Id} to child {raw_node_id} in the self-contained model is valid"
                     )
                     break
                 else:
                     # Org LIF and Partner LIF may have extensions
-                    if (
-                        node_type == DatamodelElementType.Attribute or (node.Extension == False)
-                    ) and node.ExtendedByDataModelId is None:
-                        found_valid_association = True
+                    if node_type == DatamodelElementType.Entity:
+                        # If either the current or previous node is an Extension, the association must
+                        # be an extension and have ExtendedByDataModelId set to the anchor data model
+                        if (
+                            (current_node.Extension == True or previous_node.Extension == True)
+                            and association.Extension == True
+                            and association.ExtendedByDataModelId == anchor_data_model_id
+                        ):
+                            found_valid_association = True
+                            logger.info(
+                                f"{signature} - Entity association from parent {previous_node.Id} to child {raw_node_id} is valid (Extension on current or parent is True, and association is an extension with extendedByDataModelId matching the anchor data model)"
+                            )
+                            break
+                        # If both the current and previous nodes are not Extensions, the association must not
+                        # be an extension but must have ExtendedByDataModelId set to the anchor data model
+                        elif (
+                            current_node.Extension == False
+                            and previous_node.Extension == False
+                            and association.Extension == False
+                            and (
+                                # A value of 'None' looks to occur when a mapping is requested of A1
+                                # and the path is E1 > E2 > A1, but E1 was the association from
+                                # the originating data model
+                                association.ExtendedByDataModelId is anchor_data_model_id
+                                or association.ExtendedByDataModelId is None
+                            )
+                        ):
+                            found_valid_association = True
+                            logger.info(
+                                f"{signature} - Entity association from parent {previous_node.Id} to child {raw_node_id} is valid (Extension on current, parent, and association is false, but the association ExtendedByDataModelId matches the anchor data model)"
+                            )
+                            break
                         logger.info(
-                            f"{signature} - Association from parent {previous_id} to child {raw_node_id} is valid and originates in the anchor data model"
+                            f"{signature} - Invalid non-self-contained data model entity association from parent (id={previous_node.Id}, extension={previous_node.Extension}) to child (id={raw_node_id}, extension={current_node.Extension}) is invalid: {association}"
                         )
-                        break
-                    elif (
-                        node_type == DatamodelElementType.Attribute or (node.Extension == True)
-                    ) and node.ExtendedByDataModelId == anchor_data_model_id:
-                        found_valid_association = True
+                    else:
+                        # Must be an attribute association
+
+                        # If either the current or previous node is an Extension, the association
+                        # must have ExtendedByDataModelId set to the anchor data model
+                        if (
+                            current_node.Extension == True or previous_node.Extension == True
+                        ) and association.ExtendedByDataModelId == anchor_data_model_id:
+                            found_valid_association = True
+                            logger.info(
+                                f"{signature} - Attribute association from parent {previous_node.Id} to child {raw_node_id} is valid (Extension on current or parent is True, and association's extendedByDataModelId matches the anchor data model)"
+                            )
+                            break
+                        # If both the current and previous nodes are not Extensions, the
+                        # association must have ExtendedByDataModelId set to the None
+                        elif (
+                            current_node.Extension == False
+                            and previous_node.Extension == False
+                            and association.ExtendedByDataModelId is None
+                        ):
+                            found_valid_association = True
+                            logger.info(
+                                f"{signature} - Attribute association from parent {previous_node.Id} to child {raw_node_id} is valid (Extension on current and parent are false, and the association ExtendedByDataModelId is None)"
+                            )
+                            break
                         logger.info(
-                            f"{signature} - Association from parent {previous_id} to child {raw_node_id} is valid and extended by the anchor data model"
+                            f"{signature} - Invalid non-self-contained data model attribute association from parent (id={previous_node.Id}, extension={previous_node.Extension}) to child (id={raw_node_id}, extension={current_node.Extension}) is invalid: {association}"
                         )
-                        break
 
             if not found_valid_association:
-                message = (
-                    f"{signature} - Unable to find valid association from parent {previous_id} to child {raw_node_id}."
-                )
-                logger.warning(message)
+                message = f"{signature} - Unable to find valid association from parent {previous_node.Id} to child {raw_node_id}."
+                logger.warning(f"{message} ")
                 raise HTTPException(status_code=400, detail=message)
 
         # this will always be a positive id except for possibly the last node
         previous_id = raw_node_id
 
 
-def check_is_entity_id_path_v2(transformation_attribute: CreateTransformationDTO | UpdateTransformationDTO) -> bool:
-    return (
-        (
-            transformation_attribute.SourceAttributes
-            and transformation_attribute.SourceAttributes[0].EntityIdPath
-            and (
-                transformation_attribute.SourceAttributes[0].EntityIdPath.__contains__(",")
-                or transformation_attribute.SourceAttributes[0].EntityIdPath.lstrip("-").isdigit()
-            )
-        )
-        or (
-            transformation_attribute.TargetAttribute
-            and transformation_attribute.TargetAttribute.EntityIdPath
-            and (
-                transformation_attribute.TargetAttribute.EntityIdPath.__contains__(",")
-                or transformation_attribute.TargetAttribute.EntityIdPath.lstrip("-").isdigit()
-            )
-        )
-        or False
-    )
-
-
 async def create_transformation(session: AsyncSession, data: CreateTransformationDTO):
-    # Once the UX is in place, only keep the `is_entity_id_path_v2` code flows
-    is_entity_id_path_v2 = check_is_entity_id_path_v2(data)
-    logger.info(f"Creating transformation; is_entity_id_path_v2={is_entity_id_path_v2}")
-
     # Checking if transformation group exists
     transformation_group = await get_transformation_group_by_id(session=session, id=data.TransformationGroupId)
     source_data_model = await check_datamodel_by_id(session=session, id=transformation_group.SourceDataModelId)
@@ -269,34 +266,14 @@ async def create_transformation(session: AsyncSession, data: CreateTransformatio
 
     # Validate source attributes
     for attribute in data.SourceAttributes:
-        if is_entity_id_path_v2:
-            await check_transformation_attribute(
-                session=session, anchor_data_model=source_data_model, id_path=attribute.EntityIdPath
-            )
-        else:
-            src_attribute = await check_attribute_by_id(session=session, id=attribute.AttributeId)
-            if src_attribute.DataModelId != transformation_group.SourceDataModelId:
-                raise HTTPException(
-                    status_code=400,
-                    detail="The source attribute  is not under the source data model for this transformation group.",
-                )
-            await check_entity_by_id(session=session, id=attribute.EntityId)
-            await check_entity_attribute_association(
-                session=session, entity_id=attribute.EntityId, attribute_id=attribute.AttributeId
-            )
+        await check_transformation_attribute(
+            session=session, anchor_data_model=source_data_model, id_path=attribute.EntityIdPath
+        )
 
     # Validate target attributes
-    if is_entity_id_path_v2:
-        await check_transformation_attribute(
-            session=session, anchor_data_model=target_data_model, id_path=data.TargetAttribute.EntityIdPath
-        )
-    else:
-        tar_attribute = await check_attribute_by_id(session=session, id=data.TargetAttribute.AttributeId)
-        # BS: removed check for same data model in target because an OrgLIF extends BaseLIF via inclusions and so can be mapped.
-        await check_entity_by_id(session=session, id=data.TargetAttribute.EntityId)
-        await check_entity_attribute_association(
-            session=session, entity_id=data.TargetAttribute.EntityId, attribute_id=data.TargetAttribute.AttributeId
-        )
+    await check_transformation_attribute(
+        session=session, anchor_data_model=target_data_model, id_path=data.TargetAttribute.EntityIdPath
+    )
 
     # Step 1: Create the Transformation
     transformation = Transformation(
@@ -319,10 +296,6 @@ async def create_transformation(session: AsyncSession, data: CreateTransformatio
     # Step 2: Create TransformationAttributes (Source and Target)
     source_attributes = []
     for attribute in data.SourceAttributes:
-        if not is_entity_id_path_v2:
-            # Validate entity id path
-            await validate_entity_id_path(session, attribute)
-
         source_attribute = TransformationAttribute(
             TransformationId=transformation.Id,
             AttributeId=attribute.AttributeId,
@@ -338,10 +311,6 @@ async def create_transformation(session: AsyncSession, data: CreateTransformatio
         )
         source_attributes.append(TransformationAttributeDTO.from_orm(source_attribute))
         session.add(source_attribute)
-
-    if not is_entity_id_path_v2:
-        # Validate entity id path
-        await validate_entity_id_path(session, data.TargetAttribute)
 
     target_attribute = TransformationAttribute(
         TransformationId=transformation.Id,
@@ -445,10 +414,6 @@ async def get_transformation_by_id(session: AsyncSession, transformation_id: int
 
 
 async def update_transformation(session: AsyncSession, transformation_id: int, data: UpdateTransformationDTO) -> dict:
-    # Once the UX is in place, only keep the `is_entity_id_path_v2` code flows
-    is_entity_id_path_v2 = check_is_entity_id_path_v2(data)
-    logger.info(f"Updating transformation; is_entity_id_path_v2={is_entity_id_path_v2}")
-
     # Validate transformation
     transformation = await session.get(Transformation, transformation_id)
     if not transformation:
@@ -478,24 +443,9 @@ async def update_transformation(session: AsyncSession, transformation_id: int, d
         update_source_attribute_ids = []
         for attr in data.SourceAttributes:
             # Validate source attribute
-            if is_entity_id_path_v2:
-                await check_transformation_attribute(
-                    session=session, anchor_data_model=source_data_model, id_path=attr.EntityIdPath
-                )
-            else:
-                attribute = await check_attribute_by_id(session=session, id=attr.AttributeId)
-                if attribute.DataModelId != transformation_group.SourceDataModelId:
-                    raise HTTPException(
-                        status_code=400,
-                        detail="The source attribute  is not under the source data model for this transformation group.",
-                    )
-                await check_entity_by_id(session=session, id=attr.EntityId)
-                await check_entity_attribute_association(
-                    session=session, entity_id=attr.EntityId, attribute_id=attr.AttributeId
-                )
-
-                # Validate entity path
-                await validate_entity_id_path(session, attr)
+            await check_transformation_attribute(
+                session=session, anchor_data_model=source_data_model, id_path=attr.EntityIdPath
+            )
 
             update_source_attribute_ids.append(attr.AttributeId)
 
@@ -567,24 +517,9 @@ async def update_transformation(session: AsyncSession, transformation_id: int, d
 
     if data.TargetAttribute:
         # Validate target attribute
-        if is_entity_id_path_v2:
-            await check_transformation_attribute(
-                session=session, anchor_data_model=target_data_model, id_path=data.TargetAttribute.EntityIdPath
-            )
-        else:
-            tar_attribute = await check_attribute_by_id(session=session, id=data.TargetAttribute.AttributeId)
-            if tar_attribute.DataModelId != transformation_group.TargetDataModelId:
-                raise HTTPException(
-                    status_code=400,
-                    detail="The target attribute is not under the target data model for this transformation group.",
-                )
-            await check_entity_by_id(session=session, id=data.TargetAttribute.EntityId)
-            await check_entity_attribute_association(
-                session=session, entity_id=data.TargetAttribute.EntityId, attribute_id=data.TargetAttribute.AttributeId
-            )
-
-            # Validate entity path
-            await validate_entity_id_path(session, data.TargetAttribute)
+        await check_transformation_attribute(
+            session=session, anchor_data_model=target_data_model, id_path=data.TargetAttribute.EntityIdPath
+        )
 
         # Update target attribute
         if target_transformation_attribute:
