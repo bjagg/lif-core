@@ -35,7 +35,7 @@
         * update GitHubRepos
 8. Run the deploy script to create the LIF ECR repositories and GitHub Action role
     ```
-    ./aws-deploy -s <name> --only-stack <name>-lif-repositories
+    ./aws-deploy.sh -s <name> --only-stack <name>-lif-repositories
     ```
     * this must be run by an administrator user
     * the script will initiate an Identity Center SSO login
@@ -43,7 +43,7 @@
     * this should be run on your local machine, or in a virtual machine to which you have console access
 9. Run the deploy script to deploy all stacks
     ```
-    ./aws-deploy -s <name>
+    ./aws-deploy.sh -s <name>
     ```
 
 ## Release to Demo

@@ -113,14 +113,20 @@ get_release_tag() {
         return 1
     fi
 
-    # Query ECR for the tag associated with "latest"
+    # Query ECR for the image tagged "latest"
     # The "latest" tag is an alias; we want the actual version tag
     local ecr_output
     local ecr_exit_code
     local tag
 
     # Guard against -e exit by capturing exit code separately
-    ecr_output=$(aws ecr describe-images --repository-name "$repo" --region "$region" 2>&1) || ecr_exit_code=$?
+    # Use --output json to ensure consistent output format regardless of AWS_DEFAULT_OUTPUT
+    # Use --image-ids to query only the "latest" tag for efficiency
+    ecr_output=$(aws ecr describe-images \
+        --repository-name "$repo" \
+        --region "$region" \
+        --image-ids imageTag=latest \
+        --output json 2>&1) || ecr_exit_code=$?
 
     if [[ -n "${ecr_exit_code:-}" ]]; then
         if echo "$ecr_output" | grep -q "AccessDeniedException"; then
@@ -134,16 +140,22 @@ get_release_tag() {
             return 1
         fi
 
+        if echo "$ecr_output" | grep -q "ImageNotFoundException"; then
+            log_error "No image tagged 'latest' found in repository: $repo"
+            return 1
+        fi
+
         # Generic error
         log_error "ECR query failed for $repo (region: $region): $ecr_output"
         return 1
     fi
 
-    # Sort tags and select the most recent (lexicographically largest for timestamp-based tags)
-    tag=$(echo "$ecr_output" | jq -r '.imageDetails[] | select(has("imageTags")) | select(.imageTags | any(. == "latest")) | (.imageTags - ["latest"]) | sort | last' 2>/dev/null)
+    # Extract the version tag (the non-"latest" tag on this image)
+    # Sort and select the most recent (lexicographically largest for timestamp-based tags)
+    tag=$(echo "$ecr_output" | jq -r '.imageDetails[0].imageTags | map(select(. != "latest")) | sort | last' 2>/dev/null)
 
     if [[ -z "$tag" || "$tag" == "null" ]]; then
-        log_error "No 'latest' tag found for repository: $repo"
+        log_error "Image tagged 'latest' in $repo has no version tag to resolve"
         return 1
     fi
 
@@ -322,9 +334,9 @@ main() {
     for file in "${param_files[@]}"; do
         if update_params_file "$file"; then
             if [[ "$_CURR_URL" != "$_NEW_URL" ]]; then
-                ((updated++))
+                ((++updated))
             else
-                ((skipped++))
+                ((++skipped))
             fi
         fi
     done
