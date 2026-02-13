@@ -126,6 +126,186 @@ users_db: List[Dict[str, Any]] = [
         "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
         "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
     },
+    {
+        "username": "dharris_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Daniel",
+        "lastname": "Harris",
+        "identifier": "100011",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "emoore_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Edward",
+        "lastname": "Moore",
+        "identifier": "100012",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "fwalker_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Freya",
+        "lastname": "Walker",
+        "identifier": "100013",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "hwhite_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Henry",
+        "lastname": "White",
+        "identifier": "100014",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "ilee_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Isabella",
+        "lastname": "Lee",
+        "identifier": "100015",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "kthomas_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Kai",
+        "lastname": "Thomas",
+        "identifier": "100016",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "llopez_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Lily",
+        "lastname": "Lopez",
+        "identifier": "100017",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "lbrown_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Leo",
+        "lastname": "Brown",
+        "identifier": "100018",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "mlewis_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Mia",
+        "lastname": "Lewis",
+        "identifier": "100019",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "ocap_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Oliver",
+        "lastname": "Cap",
+        "identifier": "100020",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "ptaylor_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Poppy",
+        "lastname": "Taylor",
+        "identifier": "100021",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "rclark_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Rosie",
+        "lastname": "Clark",
+        "identifier": "100022",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "ujackson_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Umar",  # cspell:disable-line
+        "lastname": "Jackson",
+        "identifier": "100023",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "vperez_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Violet",
+        "lastname": "Perez",
+        "identifier": "100024",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "wjones_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Willow",
+        "lastname": "Jones",
+        "identifier": "100025",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "yrodriguez_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Yasmin",  # cspell:disable-line
+        "lastname": "Rodriguez",
+        "identifier": "100026",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "zgarcia_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Zachary",
+        "lastname": "Garcia",
+        "identifier": "100027",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "ftorres_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Frank",
+        "lastname": "Torres",
+        "identifier": "100028",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "mmiller_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Mary",
+        "lastname": "Miller",
+        "identifier": "100029",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
+    {
+        "username": "abaker_lifdemo@stateu.edu",
+        "password": "$2b$12$pJyJLoYE2QcygmcdEfUhx.7OW1hbo79e3CbrHTyKy7ATJyUPRB4CK",  # "liffy4life!"
+        "firstname": "Aaron",
+        "lastname": "Baker",
+        "identifier": "100030",
+        "identifier_type": "SCHOOL_ASSIGNED_NUMBER",
+        "identifier_type_enum": "SCHOOL_ASSIGNED_NUMBER",
+    },
 ]
 
 
