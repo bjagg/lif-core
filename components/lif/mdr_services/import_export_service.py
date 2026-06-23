@@ -14,16 +14,27 @@ from lif.datatypes.mdr_sql_model import (
     ValueSet,
     ValueSetValue,
 )
-from lif.mdr_dto.attribute_dto import CreateAttributeDTO
-from lif.mdr_dto.datamodel_constraints_dto import CreateDataModelConstraintsDTO
-from lif.mdr_dto.entity_association_dto import CreateEntityAssociationDTO
-from lif.mdr_dto.entity_attribute_association_dto import CreateEntityAttributeAssociationDTO
-from lif.mdr_dto.entity_dto import CreateEntityDTO
+from lif.mdr_dto.attribute_dto import AttributeDTO, CreateAttributeDTO
+from lif.mdr_dto.datamodel_constraints_dto import CreateDataModelConstraintsDTO, DataModelConstraintsDTO
+from lif.mdr_dto.datamodel_dto import CreateDataModelDTO, DataModelDTO
+from lif.mdr_dto.entity_association_dto import CreateEntityAssociationDTO, EntityAssociationDTO
+from lif.mdr_dto.entity_attribute_association_dto import (
+    CreateEntityAttributeAssociationDTO,
+    EntityAttributeAssociationDTO,
+)
+from lif.mdr_dto.entity_dto import CreateEntityDTO, EntityDTO
 from lif.mdr_dto.import_export_dto import (
     CreateCloneDTO,
-    SingleDataModelExportDTO,
-    ImportDataModelDTO,
     DataModelExportDTO,
+    ImportAttributeDTO,
+    ImportDataModelConstraintsDTO,
+    ImportDataModelDTO,
+    ImportEntityAssociationDTO,
+    ImportEntityDTO,
+    ImportValueSetDTO,
+    ImportValueSetValueDTO,
+    ImportValueSetWithValuesDTO,
+    SingleDataModelExportDTO,
     ValueSetExportDTO,
 )
 from lif.mdr_dto.value_set_values_dto import CreateValuesWithValueSetDTO
@@ -113,9 +124,9 @@ async def export_datamodel(session: AsyncSession, id: int):
 
 
 async def get_export_dto(session: AsyncSession, data_model_id: int):
-    # Get entities
+    # Get entities (get_list_of_entities_for_data_model has no check_base param)
     total_entity_count, entity_list = await get_list_of_entities_for_data_model(
-        session=session, data_model_id=data_model_id, pagination=False, check_base=False
+        session=session, data_model_id=data_model_id, pagination=False
     )
 
     # Get Attributes
@@ -138,10 +149,8 @@ async def get_export_dto(session: AsyncSession, data_model_id: int):
     # Getting all the transformation
     transformations = await get_transformations_by_data_model_id(session=session, data_model_id=data_model_id)
 
-    # Getting Entity associations
-    entity_associations = await get_entity_associations_by_data_model_id(
-        session=session, data_model_id=data_model_id, check_base=False
-    )
+    # Getting Entity associations (get_entity_associations_by_data_model_id has no check_base param)
+    entity_associations = await get_entity_associations_by_data_model_id(session=session, data_model_id=data_model_id)
 
     total_association, entity_attribute_associations = await get_entity_attribute_associations_by_data_model_id(
         session=session, data_model_id=data_model_id, pagination=False
@@ -185,6 +194,218 @@ async def export_multiple_datamodel(session: AsyncSession, ids: list[int]):
         )
         data_model_list.append(data_model_dto)
     return data_model_list
+
+
+def build_import_data_model_dto(
+    data_model: DataModelDTO,
+    entity_list: List[EntityDTO],
+    attribute_list: List[AttributeDTO],
+    value_set_list: List[ValueSetExportDTO],
+    entity_associations: List[EntityAssociationDTO],
+    entity_attribute_associations: List[EntityAttributeAssociationDTO],
+    data_model_constraints: List[DataModelConstraintsDTO],
+) -> ImportDataModelDTO:
+    """Convert an ID-based export into the name-based ImportDataModelDTO that import_datamodel consumes.
+
+    Every cross-row reference in the export (EntityId, AttributeId, ValueSetId, ParentEntityId, the
+    constraint ElementId, …) is a primary key from the *source* database — a "DB artifact" that means
+    nothing in another install. This rewrites each reference as the referenced row's name, the portable
+    identity that import_datamodel resolves against the rows it freshly creates.
+
+    Scope: a single data model (SourceSchema and other standalone models). OrgLIF/PartnerLIF extended
+    models whose elements span a separate base model are not handled here — import_datamodel takes a
+    single ImportDataModelDTO and the base/extended split needs its own design (follow-up).
+    """
+    entity_name_by_id = {e.Id: e.Name for e in entity_list}
+    attribute_name_by_id = {a.Id: a.Name for a in attribute_list}
+    value_set_name_by_id = {vs.ValueSet.Id: vs.ValueSet.Name for vs in value_set_list}
+    # An attribute's owning entity is expressed only through the entity/attribute association table.
+    entity_name_by_attribute_id = {
+        eaa.AttributeId: entity_name_by_id.get(eaa.EntityId) for eaa in entity_attribute_associations
+    }
+
+    import_entities = [
+        ImportEntityDTO(
+            Name=e.Name,
+            UniqueName=e.UniqueName,
+            Description=e.Description,
+            UseConsiderations=e.UseConsiderations,
+            Required=e.Required,
+            Array=e.Array,
+            SourceModel=e.SourceModel,
+            Notes=e.Notes,
+            CreationDate=e.CreationDate,
+            ActivationDate=e.ActivationDate,
+            DeprecationDate=e.DeprecationDate,
+            Contributor=e.Contributor,
+            ContributorOrganization=e.ContributorOrganization,
+            Extension=e.Extension,
+            ExtensionNotes=e.ExtensionNotes,
+            Tags=e.Tags,
+        )
+        for e in entity_list
+    ]
+
+    import_attributes = [
+        ImportAttributeDTO(
+            Name=a.Name,
+            DataType=a.DataType or "string",
+            EntityName=entity_name_by_attribute_id.get(a.Id),
+            UniqueName=a.UniqueName,
+            Description=a.Description,
+            UseConsiderations=a.UseConsiderations,
+            ValueSetName=value_set_name_by_id.get(a.ValueSetId) if a.ValueSetId else None,
+            Required=a.Required,
+            Array=a.Array,
+            SourceModel=a.SourceModel,
+            Notes=a.Notes,
+            CreationDate=a.CreationDate,
+            ActivationDate=a.ActivationDate,
+            DeprecationDate=a.DeprecationDate,
+            Contributor=a.Contributor,
+            ContributorOrganization=a.ContributorOrganization,
+            Extension=a.Extension,
+            ExtensionNotes=a.ExtensionNotes,
+        )
+        for a in attribute_list
+    ]
+
+    import_value_sets = [
+        ImportValueSetWithValuesDTO(
+            ValueSet=ImportValueSetDTO(
+                Name=vs.ValueSet.Name,
+                Description=vs.ValueSet.Description,
+                UseConsiderations=vs.ValueSet.UseConsiderations,
+                Notes=vs.ValueSet.Notes,
+                CreationDate=vs.ValueSet.CreationDate,
+                ActivationDate=vs.ValueSet.ActivationDate,
+                DeprecationDate=vs.ValueSet.DeprecationDate,
+                Contributor=vs.ValueSet.Contributor,
+                ContributorOrganization=vs.ValueSet.ContributorOrganization,
+                Extension=vs.ValueSet.Extension,
+                ExtensionNotes=vs.ValueSet.ExtensionNotes,
+            ),
+            Values=[
+                ImportValueSetValueDTO(
+                    Value=v.Value,
+                    ValueName=v.ValueName,
+                    Description=v.Description,
+                    UseConsiderations=v.UseConsiderations,
+                    Source=v.Source,
+                    Notes=v.Notes,
+                    CreationDate=v.CreationDate,
+                    ActivationDate=v.ActivationDate,
+                    DeprecationDate=v.DeprecationDate,
+                    Contributor=v.Contributor,
+                    ContributorOrganization=v.ContributorOrganization,
+                    Extension=v.Extension,
+                    ExtensionNotes=v.ExtensionNotes,
+                    # OriginalValueId is intentionally dropped — it is a source-DB value id (artifact).
+                )
+                for v in vs.Values
+            ],
+        )
+        for vs in value_set_list
+    ]
+
+    import_entity_associations: List[ImportEntityAssociationDTO] = []
+    for ea in entity_associations:
+        parent_name = entity_name_by_id.get(ea.ParentEntityId)
+        child_name = entity_name_by_id.get(ea.ChildEntityId)
+        if not parent_name or not child_name:
+            logger.warning(f"Skipping entity association {ea.Id}: unresolved parent/child entity name")
+            continue
+        import_entity_associations.append(
+            ImportEntityAssociationDTO(
+                ParentEntityName=parent_name,
+                ChildEntityName=child_name,
+                Relationship=ea.Relationship,
+                Placement=ea.Placement,
+                Notes=ea.Notes,
+                CreationDate=ea.CreationDate,
+                ActivationDate=ea.ActivationDate,
+                DeprecationDate=ea.DeprecationDate,
+                Contributor=ea.Contributor,
+                ContributorOrganization=ea.ContributorOrganization,
+            )
+        )
+
+    element_name_by_type = {
+        DatamodelElementType.Entity: entity_name_by_id,
+        DatamodelElementType.Attribute: attribute_name_by_id,
+        DatamodelElementType.ValueSet: value_set_name_by_id,
+    }
+    import_constraints: List[ImportDataModelConstraintsDTO] = []
+    for c in data_model_constraints:
+        element_name = element_name_by_type.get(c.ElementType, {}).get(c.ElementId)
+        if not element_name:
+            logger.warning(f"Skipping constraint {c.Id}: unresolved element for {c.ElementType}/{c.ElementId}")
+            continue
+        import_constraints.append(
+            ImportDataModelConstraintsDTO(
+                Name=c.Name,
+                Description=c.Description,
+                ForDataModelId=c.ForDataModelId,  # source-DB id; import_datamodel remaps it to the new model
+                ElementType=c.ElementType,
+                ElementName=element_name,
+                ConstraintType=c.ConstraintType,
+                Notes=c.Notes,
+                CreationDate=c.CreationDate,
+                ActivationDate=c.ActivationDate,
+                DeprecationDate=c.DeprecationDate,
+                Contributor=c.Contributor or "",
+                ContributorOrganization=c.ContributorOrganization or "",
+                Deleted=c.Deleted,
+            )
+        )
+
+    import_data_model = CreateDataModelDTO(
+        Name=data_model.Name,
+        Description=data_model.Description,
+        UseConsiderations=data_model.UseConsiderations,
+        Type=data_model.Type,
+        BaseDataModelId=None,  # source-DB id; intentionally dropped for portability
+        Notes=data_model.Notes,
+        DataModelVersion=data_model.DataModelVersion or "",
+        ActivationDate=data_model.ActivationDate,
+        DeprecationDate=data_model.DeprecationDate,
+        Contributor=data_model.Contributor,
+        ContributorOrganization=data_model.ContributorOrganization,
+        State=data_model.State,
+        Tags=data_model.Tags,
+    )
+
+    return ImportDataModelDTO(
+        DataModel=import_data_model,
+        Entities=import_entities,
+        Attributes=import_attributes,
+        ValueSets=import_value_sets,
+        EntityAssociation=import_entity_associations,
+        DataModelConstraints=import_constraints,
+    )
+
+
+async def export_datamodel_portable(session: AsyncSession, id: int) -> ImportDataModelDTO:
+    """Export a data model as a portable, name-based ImportDataModelDTO ready to POST back to /import/."""
+    data_model = await get_datamodel_by_id(session=session, id=id)
+    (
+        entity_list,
+        attribute_list,
+        value_set_list,
+        _transformations,  # transformations are not part of ImportDataModelDTO yet (#771)
+        entity_associations,
+        entity_attribute_associations,
+        data_model_constraints,
+    ) = await get_export_dto(session=session, data_model_id=data_model.Id)
+    return build_import_data_model_dto(
+        data_model=data_model,
+        entity_list=entity_list,
+        attribute_list=attribute_list,
+        value_set_list=value_set_list,
+        entity_associations=entity_associations,
+        entity_attribute_associations=entity_attribute_associations,
+        data_model_constraints=data_model_constraints,
+    )
 
 
 async def import_datamodel(session: AsyncSession, data: ImportDataModelDTO):
