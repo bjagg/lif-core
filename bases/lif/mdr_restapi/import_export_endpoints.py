@@ -23,6 +23,12 @@ async def export_data_model(data_model_id: int, session: AsyncSession = Depends(
     return data_model
 
 
+@router.get("/export/portable/{data_model_id}", response_model=ImportDataModelDTO)
+async def export_data_model_portable(data_model_id: int, session: AsyncSession = Depends(get_session)):
+    """Name-based export ready to POST straight back to /import/ on another install."""
+    return await import_export_service.export_datamodel_portable(session=session, id=data_model_id)
+
+
 @router.get("/export/multiple/", response_model=List[SingleDataModelExportDTO])
 async def export_data_model(ids: List[int] = Query(...), session: AsyncSession = Depends(get_session)):
     data_model = await import_export_service.export_multiple_datamodel(session=session, ids=ids)
